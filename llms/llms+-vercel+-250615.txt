@@ -1,0 +1,1138 @@
+TITLE: Deleting Vercel Integration Log Drain using Vercel SDK (TypeScript)
+DESCRIPTION: Demonstrates how to delete an integration log drain using the `Vercel` class instance from the `@vercel/sdk`. Requires providing the log drain `id` and optionally `teamId` or `slug`. The log drain can only be deleted if the integration owns it when using an OAuth2 Token.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/logdrains/README.md#_snippet_6
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  await vercel.logDrains.deleteIntegrationLogDrain({
+    id: "<id>",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug"
+  });
+
+
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Retrieving Vercel Domains using Standalone Function (TypeScript)
+DESCRIPTION: This snippet shows how to retrieve domains using the standalone `domainsGetDomains` function from `@vercel/sdk/funcs`. It utilizes a `VercelCore` instance for potential tree-shaking benefits and demonstrates calling the function with parameters and handling the result, including checking for errors.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/domains/README.md#_snippet_13
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { domainsGetDomains } from "@vercel/sdk/funcs/domainsGetDomains.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await domainsGetDomains(vercel, {
+    limit: 20,
+    since: 1609499532000,
+    until: 1612264332000,
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Updating Vercel Project Domain using SDK Instance (TypeScript)
+DESCRIPTION: This snippet demonstrates how to update a Vercel project domain's configuration using an instance of the `Vercel` class from the `@vercel/sdk`. It shows how to initialize the SDK with a bearer token and then call the `projects.updateProjectDomain` method with the required parameters like project ID/name, domain, team details, and the request body specifying updates like `gitBranch` and `redirect`.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/projects/README.md#_snippet_14
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.projects.updateProjectDomain({
+    idOrName: "<value>",
+    domain: "www.example.com",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      gitBranch: null,
+      redirect: "foobar.com",
+      redirectStatusCode: 307,
+    },
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Update Edge Config using Vercel Class (TypeScript)
+DESCRIPTION: This snippet demonstrates how to update a Vercel Edge Config using an instance of the main `Vercel` class. It requires initializing the class with a bearer token and then calling the `edgeConfig.updateEdgeConfig` method with the necessary parameters like `edgeConfigId`, `teamId`, `slug`, and the `requestBody` containing the update.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/edgeconfig/README.md#_snippet_6
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.edgeConfig.updateEdgeConfig({
+    edgeConfigId: "<id>",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      slug: "<value>"
+    }
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Initializing CreateProjectDefaultResourceConfig in TypeScript
+DESCRIPTION: This snippet demonstrates how to import the CreateProjectDefaultResourceConfig type and create an instance of it in TypeScript, showing the initialization of the required `functionDefaultRegions` field. It serves as a basic example for configuring default resource settings for a Vercel project.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/models/createprojectdefaultresourceconfig.md#_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import { CreateProjectDefaultResourceConfig } from "@vercel/sdk/models/createprojectop.js";
+
+let value: CreateProjectDefaultResourceConfig = {
+  functionDefaultRegions: [
+    "<value>",
+  ],
+};
+```
+
+----------------------------------------
+
+TITLE: Create Vercel Project with Vercel Class (TypeScript)
+DESCRIPTION: Demonstrates how to create a new Vercel project using an instance of the main `Vercel` class. It shows how to initialize the SDK with a bearer token and pass configuration options like team ID, slug, and the project name in the request body.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/projects/README.md#_snippet_4
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.projects.createProject({
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      name: "a-project-name",
+    },
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Recommended TypeScript Compiler Options
+DESCRIPTION: Provides the recommended settings for the `compilerOptions` in a `tsconfig.json` file when using this SDK with TypeScript. These settings ensure proper static type support for features like async iterables, streams, and fetch-related APIs by targeting ES2020 or higher and including necessary library definitions.
+SOURCE: https://github.com/vercel/sdk/blob/main/RUNTIMES.md#_snippet_0
+
+LANGUAGE: json
+CODE:
+```
+{
+  "compilerOptions": {
+    "target": "es2020", // or higher
+    "lib": ["es2020", "dom", "dom.iterable"]
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Create Vercel Project with Standalone Function (TypeScript)
+DESCRIPTION: Illustrates creating a Vercel project using the standalone `projectsCreateProject` function with a `VercelCore` instance for optimized tree-shaking. It includes passing configuration options and basic error handling.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/projects/README.md#_snippet_5
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { projectsCreateProject } from "@vercel/sdk/funcs/projectsCreateProject.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await projectsCreateProject(vercel, {
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      name: "a-project-name",
+    },
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Getting Edge Config Item using Standalone Function (TypeScript)
+DESCRIPTION: This example demonstrates using the standalone `edgeConfigGetEdgeConfigItem` function from the Vercel SDK. It utilizes a `VercelCore` instance for potential tree-shaking benefits and shows how to handle the result, including error checking.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/edgeconfig/README.md#_snippet_19
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { edgeConfigGetEdgeConfigItem } from "@vercel/sdk/funcs/edgeConfigGetEdgeConfigItem.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await edgeConfigGetEdgeConfigItem(vercel, {
+    edgeConfigId: "<id>",
+    edgeConfigItemKey: "<value>",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Example Usage of UpdateProjectDomainRequestBody in TypeScript
+DESCRIPTION: This snippet demonstrates how to create an instance of the UpdateProjectDomainRequestBody type in TypeScript, assigning example values to its fields such as gitBranch, redirect, and redirectStatusCode.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/models/updateprojectdomainrequestbody.md#_snippet_0
+
+LANGUAGE: TypeScript
+CODE:
+```
+import { UpdateProjectDomainRequestBody } from "@vercel/sdk/models/updateprojectdomainop.js";
+
+let value: UpdateProjectDomainRequestBody = {
+  gitBranch: null,
+  redirect: "foobar.com",
+  redirectStatusCode: 307,
+};
+```
+
+----------------------------------------
+
+TITLE: Promoting Deployment using Standalone Function (TypeScript)
+DESCRIPTION: Illustrates using the standalone `projectsRequestPromote` function with a `VercelCore` instance, which is recommended for better tree-shaking. The function takes the `VercelCore` instance and an options object containing `projectId`, `deploymentId`, and optional `teamId` or `slug`. The example shows how to check the result for success or failure.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/projects/README.md#_snippet_41
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { projectsRequestPromote } from "@vercel/sdk/funcs/projectsRequestPromote.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await projectsRequestPromote(vercel, {
+    projectId: "<id>",
+    deploymentId: "<id>",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Possible Values for CreateRecordRequestBodyDnsType in TypeScript
+DESCRIPTION: Lists the valid string literal values that the CreateRecordRequestBodyDnsType can represent. These are standard DNS record types.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/models/createrecordrequestbodydnstype.md#_snippet_1
+
+LANGUAGE: typescript
+CODE:
+```
+"A" | "AAAA" | "ALIAS" | "CAA" | "CNAME" | "HTTPS" | "MX" | "SRV" | "TXT" | "NS"
+```
+
+----------------------------------------
+
+TITLE: Creating Auth Token using Standalone Function (TypeScript)
+DESCRIPTION: This example illustrates creating an authentication token using the standalone `authenticationCreateAuthToken` function from the SDK's core module. It utilizes `VercelCore` for better tree-shaking and demonstrates how to pass the core instance and parameters, including basic error handling.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/authentication/README.md#_snippet_5
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { authenticationCreateAuthToken } from "@vercel/sdk/funcs/authenticationCreateAuthToken.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await authenticationCreateAuthToken(vercel, {
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      name: "<value>",
+    },
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Deleting Vercel Alias using Standalone Function (TypeScript)
+DESCRIPTION: This snippet shows how to delete a Vercel alias using the standalone aliasesDeleteAlias function. It utilizes a VercelCore instance for potential tree-shaking benefits and includes basic error handling for the API response.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/aliases/README.md#_snippet_9
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { aliasesDeleteAlias } from "@vercel/sdk/funcs/aliasesDeleteAlias.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await aliasesDeleteAlias(vercel, {
+    aliasId: "<id>",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Creating Project Environment Variable using Vercel SDK Instance
+DESCRIPTION: This snippet demonstrates how to create or update a project environment variable using the `createProjectEnv` method on an instance of the `Vercel` class. It requires importing the `Vercel` class and providing a bearer token for authentication. The method takes an object specifying the project ID or name, optional upsert flag, team details, and the environment variable details in the `requestBody`.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/projects/README.md#_snippet_26
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.projects.createProjectEnv({
+    idOrName: "prj_XLKmu1DyR1eY7zq8UgeRKbA7yVLA",
+    upsert: "true",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      key: "API_URL",
+      value: "https://api.vercel.com",
+      type: "plain",
+      target: [
+        "preview"
+      ],
+      gitBranch: "feature-1",
+      comment: "database connection string for production",
+      customEnvironmentIds: [
+        "env_1234567890"
+      ]
+    }
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Creating Edge Config using Vercel SDK Class Instance (TypeScript)
+DESCRIPTION: This snippet demonstrates how to create a Vercel Edge Config using the main Vercel class instance. It requires initializing the class with a bearer token and then calling the edgeConfig.createEdgeConfig method with the team ID, slug, and request body.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/edgeconfig/README.md#_snippet_2
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.edgeConfig.createEdgeConfig({
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      slug: "<value>",
+    },
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Listing User Events using Vercel SDK TypeScript
+DESCRIPTION: This snippet demonstrates how to initialize the Vercel SDK with a bearer token and call the `user.listUserEvents` method to retrieve user events. It shows how to pass various parameters like limit, time ranges, types, and IDs to filter the results. The response is logged to the console.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/user/README.md#_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.user.listUserEvents({
+    limit: 20,
+    since: "2019-12-08T10:00:38.976Z",
+    until: "2019-12-09T23:00:38.976Z",
+    types: "login,team-member-join,domain-buy",
+    userId: "aeIInYVk59zbFF2SxfyxxmuO",
+    principalId: "aeIInYVk59zbFF2SxfyxxmuO",
+    projectIds: "aeIInYVk59zbFF2SxfyxxmuO",
+    withPayload: "true",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Creating SubmitInvoicePeriod Instance in TypeScript
+DESCRIPTION: This snippet demonstrates how to create an instance of the SubmitInvoicePeriod type in TypeScript. It shows the required 'start' and 'end' fields, which must be Date objects, representing the beginning and end of the billing period.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/models/submitinvoiceperiod.md#_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import { SubmitInvoicePeriod } from "@vercel/sdk/models/submitinvoiceop.js";
+
+let value: SubmitInvoicePeriod = {
+  start: new Date("2023-04-03T11:32:44.508Z"),
+  end: new Date("2025-04-19T03:10:20.338Z")
+};
+```
+
+----------------------------------------
+
+TITLE: Creating Event using Vercel Instance - TypeScript
+DESCRIPTION: This snippet demonstrates how to dispatch an event to Vercel using the `createEvent` method available on an initialized `Vercel` instance. It requires importing the `Vercel` class from `@vercel/sdk` and providing a bearer token for authentication. The example dispatches an `installation.updated` event.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/marketplace/README.md#_snippet_4
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  await vercel.marketplace.createEvent({
+    integrationConfigurationId: "<id>",
+    requestBody: {
+      event: {
+        type: "installation.updated",
+      },
+    },
+  });
+
+
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Allowed Values for CreateProjectNodeVersion Type
+DESCRIPTION: Lists the valid string literal values that can be assigned to the `CreateProjectNodeVersion` type. These represent the supported Node.js versions for Vercel projects.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/models/createprojectnodeversion.md#_snippet_1
+
+LANGUAGE: typescript
+CODE:
+```
+"22.x" | "20.x" | "18.x" | "16.x" | "14.x" | "12.x" | "10.x" | "8.10.x"
+```
+
+----------------------------------------
+
+TITLE: Issue Certificate using Vercel SDK Standalone Function (TypeScript)
+DESCRIPTION: Illustrates using the standalone certsIssueCert function from the Vercel SDK for better tree-shaking. Requires initializing VercelCore with a bearer token and passing the instance to the function. Includes error handling for the result.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/certs/README.md#_snippet_5
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { certsIssueCert } from "@vercel/sdk/funcs/certsIssueCert.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await certsIssueCert(vercel, {
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {},
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Creating Project Environment Variable using Standalone Function
+DESCRIPTION: This snippet shows how to create or update a project environment variable using the standalone `projectsCreateProjectEnv` function from the Vercel SDK core. This approach is recommended for better tree-shaking. It requires importing `VercelCore` and the specific function, creating a `VercelCore` instance, and passing the instance along with the configuration object (project details, upsert flag, team details, and environment variable details) to the function. It includes basic error handling.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/projects/README.md#_snippet_27
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { projectsCreateProjectEnv } from "@vercel/sdk/funcs/projectsCreateProjectEnv.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await projectsCreateProjectEnv(vercel, {
+    idOrName: "prj_XLKmu1DyR1eY7zq8UgeRKbA7yVLA",
+    upsert: "true",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      key: "API_URL",
+      value: "https://api.vercel.com",
+      type: "plain",
+      target: [
+        "preview"
+      ],
+      gitBranch: "feature-1",
+      comment: "database connection string for production",
+      customEnvironmentIds: [
+        "env_1234567890"
+      ]
+    }
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Using Standalone Function for Domain Creation or Transfer
+DESCRIPTION: Illustrates the usage of the standalone domainsCreateOrTransferDomain function with a VercelCore instance. This approach is recommended for better tree-shaking. The example shows how to pass parameters and handle the function's result, including checking for errors.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/domains/README.md#_snippet_15
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { domainsCreateOrTransferDomain } from "@vercel/sdk/funcs/domainsCreateOrTransferDomain.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await domainsCreateOrTransferDomain(vercel, {
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      name: "example.com",
+      method: "transfer-in",
+      authCode: "fdhfr820ad#@FAdlj$$",
+      expectedPrice: 8,
+    },
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Get Domain Transfer Status using Standalone Function (TypeScript)
+DESCRIPTION: Shows how to use the standalone domainsGetDomainTransfer function with a VercelCore instance. This approach is recommended for better tree-shaking performance. Requires importing VercelCore and the specific function.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/domains/README.md#_snippet_7
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { domainsGetDomainTransfer } from "@vercel/sdk/funcs/domainsGetDomainTransfer.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await domainsGetDomainTransfer(vercel, {
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    domain: "example.com",
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Updating Vercel Project using SDK (TypeScript)
+DESCRIPTION: This snippet demonstrates initializing the Vercel SDK with a bearer token and then calling the `updateProject` method to modify an existing Vercel project. It requires the project's `idOrName` and can include a `requestBody` object to specify the fields to update, such as the project `name`. The updated project details are logged.
+SOURCE: https://github.com/vercel/sdk/blob/main/README.md#_snippet_12
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.projects.updateProject({
+    idOrName: "prj_12HKQaOmR5t5Uy6vdcQsNIiZgHGB",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      name: "a-project-name",
+    },
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Update Edge Config Schema using Standalone Function (TypeScript)
+DESCRIPTION: This snippet shows how to update an Edge Config's schema using the standalone `edgeConfigPatchEdgeConfigSchema` function from the Vercel SDK's core module. It requires passing a `VercelCore` instance and the configuration object, including the Edge Config ID and the new schema definition.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/edgeconfig/README.md#_snippet_15
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { edgeConfigPatchEdgeConfigSchema } from "@vercel/sdk/funcs/edgeConfigPatchEdgeConfigSchema.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await edgeConfigPatchEdgeConfigSchema(vercel, {
+    edgeConfigId: "<id>",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      definition: "<value>",
+    },
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: List Team Members using Vercel SDK Class (TypeScript)
+DESCRIPTION: Demonstrates how to use the `getTeamMembers` method on an instance of the main `Vercel` class to fetch a paginated list of team members. It shows how to initialize the SDK with a bearer token and pass parameters like limit, time ranges, and role.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/teams/README.md#_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.teams.getTeamMembers({
+    limit: 20,
+    since: 1540095775951,
+    until: 1540095775951,
+    role: "OWNER",
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Example Usage of UpdateRecordRequestBody in TypeScript
+DESCRIPTION: This snippet demonstrates how to create an instance of the UpdateRecordRequestBody type, showing how to populate various fields including basic properties like name, value, type, and ttl, as well as nested objects for srv and https records. It requires importing the type from the @vercel/sdk.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/models/updaterecordrequestbody.md#_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import { UpdateRecordRequestBody } from "@vercel/sdk/models/updaterecordop.js";
+
+let value: UpdateRecordRequestBody = {
+  name: "example-1",
+  value: "google.com",
+  type: "A",
+  ttl: 60,
+  srv: {
+    target: "example2.com.",
+    weight: 748755,
+    port: 23554,
+    priority: 402103,
+  },
+  https: {
+    priority: 198927,
+    target: "example2.com.",
+  },
+  comment: "used to verify ownership of domain"
+};
+```
+
+----------------------------------------
+
+TITLE: Uploading File Stream with Vercel SDK (TypeScript)
+DESCRIPTION: Demonstrates how to upload a file using the Vercel SDK's `uploadArtifact` method by passing a file handle obtained via `node:fs.openAsBlob` as the `requestBody`. This approach streams the file content, preventing excessive memory usage for large files. Requires the `@vercel/sdk` package and a JavaScript runtime supporting `openAsBlob` (like Node.js v20+).
+SOURCE: https://github.com/vercel/sdk/blob/main/README.md#_snippet_13
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+import { openAsBlob } from "node:fs";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.artifacts.uploadArtifact({
+    contentLength: 4504.13,
+    xArtifactDuration: 400,
+    xArtifactClientCi: "VERCEL",
+    xArtifactClientInteractive: 0,
+    xArtifactTag: "Tc0BmHvJYMIYJ62/zx87YqO0Flxk+5Ovip25NY825CQ=",
+    hash: "12HKQaOmR5t5Uy6vdcQsNIiZgHGB",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: await openAsBlob("example.file"),
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Instantiating RequestAccessToTeamJoinedFrom Object in TypeScript
+DESCRIPTION: This snippet demonstrates how to create an instance of the `RequestAccessToTeamJoinedFrom` type from the `@vercel/sdk` library. It shows the necessary import statement and how to initialize an object with example values for its fields, such as `origin`, `commitId`, `repoId`, `repoPath`, `gitUserId`, and `gitUserLogin`, illustrating the structure required for representing access request details originating from a team join event.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/models/requestaccesstoteamjoinedfrom.md#_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import { RequestAccessToTeamJoinedFrom } from "@vercel/sdk/models/requestaccesstoteamop.js";
+
+let value: RequestAccessToTeamJoinedFrom = {
+  origin: "github",
+  commitId: "f498d25d8bd654b578716203be73084b31130cd7",
+  repoId: "67753070",
+  repoPath: "jane-doe/example",
+  gitUserId: 103053343,
+  gitUserLogin: "jane-doe"
+};
+```
+
+----------------------------------------
+
+TITLE: Retrieving Deployment with Vercel SDK Class - TypeScript
+DESCRIPTION: This snippet demonstrates how to retrieve Vercel deployment information by calling the `getDeployment` method on an instance of the `Vercel` class. It requires providing either the deployment ID or URL via the `idOrUrl` parameter, and optionally includes parameters like `withGitRepoInfo`, `teamId`, and `slug` for more detailed results or team context.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/deployments/README.md#_snippet_4
+
+LANGUAGE: typescript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.deployments.getDeployment({
+    idOrUrl: "dpl_89qyp1cskzkLrVicDaZoDbjyHuDJ",
+    withGitRepoInfo: "true",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Editing Vercel Project Environment Variable using Vercel SDK Standalone Function (TypeScript)
+DESCRIPTION: Shows how to edit a Vercel project environment variable using the standalone `projectsEditProjectEnv` function from `@vercel/sdk/funcs`. It requires a `VercelCore` instance and the same parameters as the class method, demonstrating a tree-shaking friendly approach. It also includes basic error handling.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/projects/README.md#_snippet_33
+
+LANGUAGE: TypeScript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { projectsEditProjectEnv } from "@vercel/sdk/funcs/projectsEditProjectEnv.js";
+
+// Use `VercelCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await projectsEditProjectEnv(vercel, {
+    idOrName: "prj_XLKmu1DyR1eY7zq8UgeRKbA7yVLA",
+    id: "XMbOEya1gUUO1ir4",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      key: "GITHUB_APP_ID",
+      target: [
+        "preview"
+      ],
+      gitBranch: "feature-1",
+      type: "plain",
+      value: "bkWIjbnxcvo78",
+      customEnvironmentIds: [
+        "env_1234567890"
+      ],
+      comment: "database connection string for production"
+    }
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Installing @vercel/sdk with PNPM (Bash)
+DESCRIPTION: Installs the @vercel/sdk package using the pnpm package manager.
+SOURCE: https://github.com/vercel/sdk/blob/main/README.md#_snippet_1
+
+LANGUAGE: Bash
+CODE:
+```
+pnpm add @vercel/sdk
+```
+
+----------------------------------------
+
+TITLE: Retrieving Deployment with Vercel SDK Standalone Function - TypeScript
+DESCRIPTION: This snippet shows how to use the standalone `deploymentsGetDeployment` function from `@vercel/sdk/funcs` to fetch deployment details. It utilizes a `VercelCore` instance for potential tree-shaking benefits and passes the instance along with the deployment parameters (`idOrUrl`, `withGitRepoInfo`, `teamId`, `slug`) to the function. The example includes basic error handling.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/deployments/README.md#_snippet_5
+
+LANGUAGE: typescript
+CODE:
+```
+import { VercelCore } from "@vercel/sdk/core.js";
+import { deploymentsGetDeployment } from "@vercel/sdk/funcs/deploymentsGetDeployment.js";
+
+// Use \`VercelCore\` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const vercel = new VercelCore({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const res = await deploymentsGetDeployment(vercel, {
+    idOrUrl: "dpl_89qyp1cskzkLrVicDaZoDbjyHuDJ",
+    withGitRepoInfo: "true",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+  });
+
+  if (!res.ok) {
+    throw res.error;
+  }
+
+  const { value: result } = res;
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```
+
+----------------------------------------
+
+TITLE: Creating a CreateWebhookRequestBody instance in TypeScript
+DESCRIPTION: This snippet demonstrates how to create an instance of the CreateWebhookRequestBody type, importing it from the Vercel SDK and providing values for the required 'url' and 'events' fields.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/models/createwebhookrequestbody.md#_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import { CreateWebhookRequestBody } from "@vercel/sdk/models/createwebhookop.js";
+
+let value: CreateWebhookRequestBody = {
+  url: "https://thin-gazebo.name",
+  events: [
+    "budget.reached",
+  ],
+};
+```
+
+----------------------------------------
+
+TITLE: Creating Edge Config Token using Vercel SDK instance (TypeScript)
+DESCRIPTION: This snippet demonstrates how to create a new token for an existing Vercel Edge Config using the `Vercel` class instance. It requires providing the Edge Config ID, optional team ID/slug, and a label for the new token in the request body.
+SOURCE: https://github.com/vercel/sdk/blob/main/docs/sdks/edgeconfig/README.md#_snippet_26
+
+LANGUAGE: TypeScript
+CODE:
+```
+import { Vercel } from "@vercel/sdk";
+
+const vercel = new Vercel({
+  bearerToken: "<YOUR_BEARER_TOKEN_HERE>",
+});
+
+async function run() {
+  const result = await vercel.edgeConfig.createEdgeConfigToken({
+    edgeConfigId: "<id>",
+    teamId: "team_1a2b3c4d5e6f7g8h9i0j1k2l",
+    slug: "my-team-url-slug",
+    requestBody: {
+      label: "<value>",
+    },
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();
+```

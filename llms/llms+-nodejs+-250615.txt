@@ -1,0 +1,1189 @@
+TITLE: Basic Fetch Request with Undici in JavaScript
+DESCRIPTION: This snippet demonstrates the fundamental usage of `undici.fetch` to make a GET request to a URL. It shows how to import `fetch` from `undici`, await the response, parse the JSON body, and log the result to the console. This is a common pattern for consuming RESTful APIs.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/undici/src/README.md#_snippet_4
+
+LANGUAGE: JavaScript
+CODE:
+```
+import { fetch } from 'undici'
+
+
+const res = await fetch('https://example.com')
+const json = await res.json()
+console.log(json)
+```
+
+----------------------------------------
+
+TITLE: Making HTTPS GET Request in Node.js (CJS)
+DESCRIPTION: Demonstrates how to perform an HTTPS GET request to `https://encrypted.google.com/` using `https.get`. It logs the status code, headers, and streams the response data to standard output, handling potential errors during the request.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/https.md#_snippet_10
+
+LANGUAGE: JavaScript
+CODE:
+```
+const https = require('node:https');
+
+https.get('https://encrypted.google.com/', (res) => {
+  console.log('statusCode:', res.statusCode);
+  console.log('headers:', res.headers);
+
+  res.on('data', (d) => {
+    process.stdout.write(d);
+  });
+
+}).on('error', (e) => {
+  console.error(e);
+});
+```
+
+----------------------------------------
+
+TITLE: Accessing Undici MockAgent Call History (JavaScript)
+DESCRIPTION: This example illustrates how to enable and access the call history of an Undici `MockAgent`. It shows how to instantiate `MockAgent` with `enableCallHistory: true` or enable it later, then retrieve and assert details of non-intercepted requests, such as URL, body, headers, and method, finally demonstrating how to clear the history.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/undici/src/docs/docs/best-practices/mocking-request.md#_snippet_2
+
+LANGUAGE: js
+CODE:
+```
+// index.test.mjs
+import { strict as assert } from 'node:assert'
+import { MockAgent, setGlobalDispatcher, fetch } from 'undici'
+import { app } from './app.mjs'
+
+// given an application server running on http://localhost:3000
+await app.start()
+
+// enable call history at instantiation
+const mockAgent = new MockAgent({ enableCallHistory: true })
+// or after instantiation
+mockAgent.enableCallHistory()
+
+setGlobalDispatcher(mockAgent)
+
+// this call is made (not intercepted)
+await fetch(`http://localhost:3000/endpoint?query='hello'`, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' }
+  body: JSON.stringify({ data: '' })
+})
+
+// access to the call history of the MockAgent (which register every call made intercepted or not)
+assert.ok(mockAgent.getCallHistory()?.calls().length === 1)
+assert.strictEqual(mockAgent.getCallHistory()?.firstCall()?.fullUrl, `http://localhost:3000/endpoint?query='hello'`)
+assert.strictEqual(mockAgent.getCallHistory()?.firstCall()?.body, JSON.stringify({ data: '' }))
+assert.deepStrictEqual(mockAgent.getCallHistory()?.firstCall()?.searchParams, { query: 'hello' })
+assert.strictEqual(mockAgent.getCallHistory()?.firstCall()?.port, '3000')
+assert.strictEqual(mockAgent.getCallHistory()?.firstCall()?.host, 'localhost:3000')
+assert.strictEqual(mockAgent.getCallHistory()?.firstCall()?.method, 'POST')
+assert.strictEqual(mockAgent.getCallHistory()?.firstCall()?.path, '/endpoint')
+assert.deepStrictEqual(mockAgent.getCallHistory()?.firstCall()?.headers, { 'content-type': 'application/json' })
+
+// clear all call history logs
+mockAgent.clearCallHistory()
+
+assert.ok(mockAgent.getCallHistory()?.calls().length === 0)
+```
+
+----------------------------------------
+
+TITLE: Basic npm run-script Syntax
+DESCRIPTION: This snippet illustrates the fundamental syntax for using `npm run-script`, including its aliases (`run`, `rum`, `urn`) and how to pass arguments to the script using `-- <args>`.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/content/commands/npm-run-script.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+npm run-script <command> [-- <args>]
+
+aliases: run, rum, urn
+```
+
+----------------------------------------
+
+TITLE: Publishing Packages to npm Registry
+DESCRIPTION: This command uploads the current package (defined by package.json) to the npm registry, making it available for others to install. Authentication via npm adduser is required before publishing.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/output/commands/npm.html#_snippet_9
+
+LANGUAGE: Shell
+CODE:
+```
+npm publish
+```
+
+----------------------------------------
+
+TITLE: Worker Pool Usage (ESM)
+DESCRIPTION: Demonstrates how to use the WorkerPool class with ES modules to run tasks in parallel and manage worker threads. It initializes a worker pool, submits tasks, and closes the pool after completion.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/async_context.md#_snippet_19
+
+LANGUAGE: JavaScript
+CODE:
+```
+import WorkerPool from './worker_pool.js';
+import os from 'node:os';
+
+const pool = new WorkerPool(os.availableParallelism());
+
+let finished = 0;
+for (let i = 0; i < 10; i++) {
+  pool.runTask({ a: 42, b: 100 }, (err, result) => {
+    console.log(i, err, result);
+    if (++finished === 10)
+      pool.close();
+  });
+}
+```
+
+----------------------------------------
+
+TITLE: Reading Child Process Standard Output with `stdout` in Node.js
+DESCRIPTION: Illustrates how to access and read data from the `stdout` stream of a spawned child process. It shows how to attach a 'data' event listener to `subprocess.stdout` to process output chunks as they become available from the child process.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/child_process.md#_snippet_53
+
+LANGUAGE: JavaScript
+CODE:
+```
+const { spawn } = require('node:child_process');
+
+const subprocess = spawn('ls');
+
+subprocess.stdout.on('data', (data) => {
+  console.log(`Received chunk ${data}`);
+});
+```
+
+LANGUAGE: JavaScript
+CODE:
+```
+import { spawn } from 'node:child_process';
+
+const subprocess = spawn('ls');
+
+subprocess.stdout.on('data', (data) => {
+  console.log(`Received chunk ${data}`);
+});
+```
+
+----------------------------------------
+
+TITLE: Checking Node.js and npm Versions (Shell)
+DESCRIPTION: This snippet provides the shell commands to verify if Node.js and npm are installed on your system and to display their respective versions. This is a common first step to assess the current environment before proceeding with installation or updates.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/content/configuring-npm/install.md#_snippet_0
+
+LANGUAGE: Shell
+CODE:
+```
+node -v
+npm -v
+```
+
+----------------------------------------
+
+TITLE: Constructing WHATWG URL (Template Literal)
+DESCRIPTION: This snippet shows how to construct a WHATWG `URL` object using a template literal. This approach allows combining URL components into a single string before passing it to the `URL` constructor.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/url.md#_snippet_6
+
+LANGUAGE: js
+CODE:
+```
+const pathname = '/a/b/c';
+const search = '?d=e';
+const hash = '#fgh';
+const myURL = new URL(`https://example.org${pathname}${search}${hash}`);
+```
+
+----------------------------------------
+
+TITLE: Installing npm Packages from Registry by Name (npm install [<@scope>/]<name>)
+DESCRIPTION: Performs a `<name>@<tag>` install from the npm registry, defaulting to the 'latest' tag. This command saves specified packages into `dependencies` by default, with flags like `--save-dev` or `--save-optional` to control where they are saved.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/output/commands/npm-install.html#_snippet_4
+
+LANGUAGE: Bash
+CODE:
+```
+npm install sax
+```
+
+----------------------------------------
+
+TITLE: Iterating over Buffer instances using for...of (MJS)
+DESCRIPTION: This code snippet demonstrates how to iterate over the elements of a Buffer instance using a for...of loop in a modern JavaScript module. It imports the Buffer class from the 'node:buffer' module, creates a Buffer from an array of numbers, and then iterates over each byte in the buffer, printing its value to the console.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/buffer.md#_snippet_14
+
+LANGUAGE: mjs
+CODE:
+```
+import { Buffer } from 'node:buffer';
+
+const buf = Buffer.from([1, 2, 3]);
+
+for (const b of buf) {
+  console.log(b);
+}
+// Prints:
+//   1
+//   2
+//   3
+```
+
+----------------------------------------
+
+TITLE: Implementing Inheritance with ES6 `class` in Node.js (CJS)
+DESCRIPTION: This example demonstrates the modern ES6 `class` and `extends` syntax for implementing inheritance, which is the recommended approach over `util.inherits()`. It shows how `MyStream` extends `EventEmitter` and uses CommonJS module syntax (`require`).
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/util.md#_snippet_27
+
+LANGUAGE: JavaScript
+CODE:
+```
+const EventEmitter = require('node:events');
+
+class MyStream extends EventEmitter {
+  write(data) {
+    this.emit('data', data);
+  }
+}
+
+const stream = new MyStream();
+
+stream.on('data', (data) => {
+  console.log(`Received data: "${data}"`);
+});
+stream.write('With ES6');
+```
+
+----------------------------------------
+
+TITLE: Using util.promisify with async/await in Node.js
+DESCRIPTION: These examples illustrate how to integrate `util.promisify` with `async/await` syntax for cleaner asynchronous code. It shows converting `fs.stat` to a promise and then `await`ing its result within an `async` function, making the asynchronous flow appear synchronous.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/util.md#_snippet_74
+
+LANGUAGE: mjs
+CODE:
+```
+import { promisify } from 'node:util';
+import { stat } from 'node:fs';
+
+const promisifiedStat = promisify(stat);
+
+async function callStat() {
+  const stats = await promisifiedStat('.');
+  console.log(`This directory is owned by ${stats.uid}`);
+}
+
+callStat();
+```
+
+LANGUAGE: cjs
+CODE:
+```
+const { promisify } = require('node:util');
+const { stat } = require('node:fs');
+
+const promisifiedStat = promisify(stat);
+
+async function callStat() {
+  const stats = await promisifiedStat('.');
+  console.log(`This directory is owned by ${stats.uid}`);
+}
+
+callStat();
+```
+
+----------------------------------------
+
+TITLE: Logging Messages to Stdout with console.log in JavaScript
+DESCRIPTION: Prints messages to `stdout` with a newline. It supports `printf`-like substitution values using `util.format()`. Multiple arguments are passed to `util.format()` for concatenation and formatting.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/console.md#_snippet_12
+
+LANGUAGE: JavaScript
+CODE:
+```
+const count = 5;
+console.log('count: %d', count);
+// Prints: count: 5, to stdout
+console.log('count:', count);
+// Prints: count: 5, to stdout
+```
+
+----------------------------------------
+
+TITLE: Scheduling Delayed Execution with setTimeout in Node.js
+DESCRIPTION: Schedules a one-time `callback` function to be executed after `delay` milliseconds. Node.js makes no guarantees about precise timing or ordering of callbacks, but aims to call the callback as close as possible to the specified time. The returned `Timeout` object can be used with `clearTimeout()`.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/timers.md#_snippet_3
+
+LANGUAGE: JavaScript
+CODE:
+```
+console.log('Before setTimeout call.');
+
+setTimeout(() => {
+  console.log('This message appears after 2 seconds.');
+}, 2000);
+
+setTimeout((message) => {
+  console.log(message);
+}, 1000, 'This message appears after 1 second with an argument.');
+
+console.log('After setTimeout calls (synchronous part).');
+```
+
+----------------------------------------
+
+TITLE: Signing and Verifying Data with HMAC in Node.js
+DESCRIPTION: This snippet demonstrates how to generate an HMAC key, encode a message, and then sign the message using the generated key. It showcases the basic usage of `subtle.generateKey` for key creation and `subtle.sign` for HMAC operations.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/webcrypto.md#_snippet_0
+
+LANGUAGE: JavaScript
+CODE:
+```
+const { subtle } = globalThis.crypto;
+
+(async function() {
+
+  const key = await subtle.generateKey({
+    name: 'HMAC',
+    hash: 'SHA-256',
+    length: 256,
+  }, true, ['sign', 'verify']);
+
+  const enc = new TextEncoder();
+  const message = enc.encode('I love cupcakes');
+
+  const digest = await subtle.sign({
+    name: 'HMAC',
+  }, key, message);
+
+})();
+```
+
+----------------------------------------
+
+TITLE: Calculating Event Loop Utilization with ESM in Node.js
+DESCRIPTION: This snippet demonstrates how to calculate Event Loop Utilization (ELU) using `performance.eventLoopUtilization()` in an ES module environment. It shows that blocking the event loop with `child_process.spawnSync()` results in a high ELU, even if the CPU is otherwise idle, because the event loop is prevented from processing other events. It captures the ELU before and after a blocking operation.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/perf_hooks.md#_snippet_2
+
+LANGUAGE: JavaScript
+CODE:
+```
+import { eventLoopUtilization } from 'node:perf_hooks';
+import { spawnSync } from 'node:child_process';
+
+setImmediate(() => {
+  const elu = eventLoopUtilization();
+  spawnSync('sleep', ['5']);
+  console.log(eventLoopUtilization(elu).utilization);
+});
+```
+
+----------------------------------------
+
+TITLE: AbortSignal 'abort' event example
+DESCRIPTION: This code shows how to listen for the 'abort' event on an AbortSignal using both the `onabort` property and the `addEventListener` method.  The event is triggered when the associated AbortController is aborted. The `once: true` option ensures the listener is only called once.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/globals.md#_snippet_1
+
+LANGUAGE: javascript
+CODE:
+```
+const ac = new AbortController();
+
+// Use either the onabort property...
+ac.signal.onabort = () => console.log('aborted!');
+
+// Or the EventTarget API...
+ac.signal.addEventListener('abort', (event) => {
+  console.log(event.type);  // Prints 'abort'
+}, { once: true });
+
+ac.abort();
+```
+
+----------------------------------------
+
+TITLE: Parsing URL String (WHATWG API)
+DESCRIPTION: This snippet demonstrates how to parse a URL string into a WHATWG `URL` object. The `URL` constructor takes the full URL string as its argument and returns an object with parsed components.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/url.md#_snippet_2
+
+LANGUAGE: js
+CODE:
+```
+const myURL =
+  new URL('https://user:pass@sub.example.com:8080/p/a/t/h?query=string#hash');
+```
+
+----------------------------------------
+
+TITLE: Replacing `util.isNumber()` in Node.js JavaScript
+DESCRIPTION: The `util.isNumber()` API has been removed. This snippet demonstrates the recommended JavaScript alternative for checking if an argument is a number. It uses the `typeof` operator to determine the type of the argument.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/deprecations.md#_snippet_11
+
+LANGUAGE: JavaScript
+CODE:
+```
+typeof arg === 'number'
+```
+
+----------------------------------------
+
+TITLE: Reading Data from Node.js Readable Stream in Paused Mode (Event-driven)
+DESCRIPTION: This snippet demonstrates how to read data from a Node.js `Readable` stream using the `'readable'` event. It shows how to continuously read available data in a loop until `null` is returned, indicating no more data is currently buffered. It also includes an `'end'` event listener to detect when the stream has finished. This approach is suitable for streams operating in paused mode.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/stream.md#_snippet_37
+
+LANGUAGE: javascript
+CODE:
+```
+const readable = getReadableStreamSomehow();
+
+// 'readable' may be triggered multiple times as data is buffered in
+readable.on('readable', () => {
+  let chunk;
+  console.log('Stream is readable (new data received in buffer)');
+  // Use a loop to make sure we read all currently available data
+  while (null !== (chunk = readable.read())) {
+    console.log(`Read ${chunk.length} bytes of data...`);
+  }
+});
+
+// 'end' will be triggered once when there is no more data available
+readable.on('end', () => {
+  console.log('Reached end of stream.');
+});
+```
+
+----------------------------------------
+
+TITLE: Explaining a Specific Package Dependency with npm explain
+DESCRIPTION: This example demonstrates the output of running `npm explain glob` within a project's source tree. It illustrates how the command traces the installation path of the 'glob' package, detailing its version, location, and the packages that depend on it, including both root project and nested dependencies.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/output/commands/npm-explain.html#_snippet_1
+
+LANGUAGE: CLI Output
+CODE:
+```
+glob@7.1.6
+node_modules/glob
+  glob@"^7.1.4" from the root project
+
+glob@7.1.1 dev
+node_modules/tacks/node_modules/glob
+  glob@"^7.0.5" from rimraf@2.6.2
+  node_modules/tacks/node_modules/rimraf
+    rimraf@"^2.6.2" from tacks@1.3.0
+    node_modules/tacks
+      dev tacks@"^1.3.0" from the root project
+```
+
+----------------------------------------
+
+TITLE: Mocking Date Object with Initial Time in Node.js
+DESCRIPTION: This example illustrates how to set an initial time for the mocked `Date` object by passing a `now` property to `context.mock.timers.enable()`. It verifies that `Date.now()` starts at the specified value and correctly advances with `context.mock.timers.tick()`.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/test.md#_snippet_27
+
+LANGUAGE: mjs
+CODE:
+```
+import assert from 'node:assert';
+import { test } from 'node:test';
+
+test('mocks the Date object with initial time', (context) => {
+  // Optionally choose what to mock
+  context.mock.timers.enable({ apis: ['Date'], now: 100 });
+  assert.strictEqual(Date.now(), 100);
+
+  // Advance in time will also advance the date
+  context.mock.timers.tick(200);
+  assert.strictEqual(Date.now(), 300);
+});
+```
+
+LANGUAGE: cjs
+CODE:
+```
+const assert = require('node:assert');
+const { test } = require('node:test');
+
+test('mocks the Date object with initial time', (context) => {
+  // Optionally choose what to mock
+  context.mock.timers.enable({ apis: ['Date'], now: 100 });
+  assert.strictEqual(Date.now(), 100);
+
+  // Advance in time will also advance the date
+  context.mock.timers.tick(200);
+  assert.strictEqual(Date.now(), 300);
+});
+```
+
+----------------------------------------
+
+TITLE: Compressing Files with Node.js Stream Pipeline (CJS)
+DESCRIPTION: This snippet demonstrates how to use `stream.pipeline` in CommonJS to compress a file. It reads `archive.tar`, pipes it through `zlib.createGzip()` for compression, and writes the output to `archive.tar.gz`, ensuring proper error handling and stream closure.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/stream.md#_snippet_1
+
+LANGUAGE: JavaScript
+CODE:
+```
+const { pipeline } = require('node:stream/promises');
+const fs = require('node:fs');
+const zlib = require('node:zlib');
+
+async function run() {
+  await pipeline(
+    fs.createReadStream('archive.tar'),
+    zlib.createGzip(),
+    fs.createWriteStream('archive.tar.gz'),
+  );
+  console.log('Pipeline succeeded.');
+}
+
+run().catch(console.error);
+```
+
+----------------------------------------
+
+TITLE: Handling Unhandled Promise Rejections with unhandledRejection (ESM)
+DESCRIPTION: This snippet shows how to listen for the 'unhandledRejection' event in an ES module (MJS) context. This event is emitted when a Promise is rejected and no error handler (like `.catch()`) is attached within the current event loop turn. It's useful for debugging and logging unhandled promise rejections, which can otherwise lead to uncaught exceptions.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/process.md#_snippet_10
+
+LANGUAGE: JavaScript
+CODE:
+```
+import process from 'node:process';
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Application specific logging, throwing an error, or other logic here
+});
+
+somePromise.then((res) => {
+  return reportToUser(JSON.pasre(res)); // Note the typo (`pasre`)
+}); // No `.catch()` or `.then()`
+```
+
+----------------------------------------
+
+TITLE: Piping Streams with `stream.pipeline` for Gzip Compression in Node.js
+DESCRIPTION: This snippet demonstrates how to use `stream.pipeline` to efficiently compress a file using `fs.createReadStream`, `zlib.createGzip`, and `fs.createWriteStream`. It includes an error-first callback to handle completion or failure of the pipeline, ensuring proper resource management and notification.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/stream.md#_snippet_62
+
+LANGUAGE: JavaScript
+CODE:
+```
+const { pipeline } = require('node:stream');
+const fs = require('node:fs');
+const zlib = require('node:zlib');
+
+// Use the pipeline API to easily pipe a series of streams
+// together and get notified when the pipeline is fully done.
+
+// A pipeline to gzip a potentially huge tar file efficiently:
+
+pipeline(
+  fs.createReadStream('archive.tar'),
+  zlib.createGzip(),
+  fs.createWriteStream('archive.tar.gz'),
+  (err) => {
+    if (err) {
+      console.error('Pipeline failed.', err);
+    } else {
+      console.log('Pipeline succeeded.');
+    }
+  },
+);
+```
+
+----------------------------------------
+
+TITLE: Writing Various Test Types with Node.js Test Runner
+DESCRIPTION: This comprehensive example illustrates different ways to write tests using the `node:test` module, including synchronous passing/failing tests, asynchronous passing/failing tests using `async/await`, Promise-based failing tests, and callback-based passing/failing tests. It demonstrates how the test runner handles different test function signatures and outcomes.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/test.md#_snippet_2
+
+LANGUAGE: js
+CODE:
+```
+test('synchronous passing test', (t) => {
+  // This test passes because it does not throw an exception.
+  assert.strictEqual(1, 1);
+});
+
+test('synchronous failing test', (t) => {
+  // This test fails because it throws an exception.
+  assert.strictEqual(1, 2);
+});
+
+test('asynchronous passing test', async (t) => {
+  // This test passes because the Promise returned by the async
+  // function is settled and not rejected.
+  assert.strictEqual(1, 1);
+});
+
+test('asynchronous failing test', async (t) => {
+  // This test fails because the Promise returned by the async
+  // function is rejected.
+  assert.strictEqual(1, 2);
+});
+
+test('failing test using Promises', (t) => {
+  // Promises can be used directly as well.
+  return new Promise((resolve, reject) => {
+    setImmediate(() => {
+      reject(new Error('this will cause the test to fail'));
+    });
+  });
+});
+
+test('callback passing test', (t, done) => {
+  // done() is the callback function. When the setImmediate() runs, it invokes
+  // done() with no arguments.
+  setImmediate(done);
+});
+
+test('callback failing test', (t, done) => {
+  // When the setImmediate() runs, done() is invoked with an Error object and
+  // the test fails.
+  setImmediate(() => {
+    done(new Error('callback failure'));
+  });
+});
+```
+
+----------------------------------------
+
+TITLE: Scheduling a Callback with `process.nextTick` in Node.js
+DESCRIPTION: Demonstrates the basic usage of `process.nextTick` to schedule a callback. The callback is executed after the current JavaScript stack completes but before the event loop continues, ensuring it runs before any I/O or subsequent event loop phases.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/process.md#_snippet_88
+
+LANGUAGE: mjs
+CODE:
+```
+import { nextTick } from 'node:process';
+
+console.log('start');
+nextTick(() => {
+  console.log('nextTick callback');
+});
+console.log('scheduled');
+```
+
+LANGUAGE: cjs
+CODE:
+```
+const { nextTick } = require('node:process');
+
+console.log('start');
+nextTick(() => {
+  console.log('nextTick callback');
+});
+console.log('scheduled');
+```
+
+----------------------------------------
+
+TITLE: Specifying Node.js Engine Version in package.json
+DESCRIPTION: This JSON snippet shows how to use the `engines` field to specify the compatible Node.js versions for a package. This helps ensure the package runs in an environment it was designed for.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/content/configuring-npm/package-json.md#_snippet_44
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "engines": {
+    "node": ">=0.10.3 <15"
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Running npm audit Command
+DESCRIPTION: This command initiates a security audit of project dependencies. It can optionally apply fixes for identified vulnerabilities or display audit signatures. The command sends project dependency descriptions to the default npm registry to receive a report of known vulnerabilities.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/output/commands/npm-audit.html#_snippet_0
+
+LANGUAGE: npm
+CODE:
+```
+npm audit [fix|signatures]
+```
+
+----------------------------------------
+
+TITLE: Converting Web Streams to Node.js Duplex Stream (ESM)
+DESCRIPTION: This snippet demonstrates how to use `Duplex.fromWeb` to convert a pair of Web `ReadableStream` and `WritableStream` into a Node.js `Duplex` stream in an ES Modules environment. It shows how to create the web streams, combine them into a pair, and then use the resulting Node.js duplex stream for both writing and asynchronous iteration.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/stream.md#_snippet_69
+
+LANGUAGE: mjs
+CODE:
+```
+import { Duplex } from 'node:stream';
+import {
+  ReadableStream,
+  WritableStream,
+} from 'node:stream/web';
+
+const readable = new ReadableStream({
+  start(controller) {
+    controller.enqueue('world');
+  },
+});
+
+const writable = new WritableStream({
+  write(chunk) {
+    console.log('writable', chunk);
+  },
+});
+
+const pair = {
+  readable,
+  writable,
+};
+const duplex = Duplex.fromWeb(pair, { encoding: 'utf8', objectMode: true });
+
+duplex.write('hello');
+
+for await (const chunk of duplex) {
+  console.log('readable', chunk);
+}
+```
+
+----------------------------------------
+
+TITLE: Executing npm ci Command
+DESCRIPTION: This snippet demonstrates the basic usage of the `npm ci` command, which performs a clean installation of project dependencies based on a `package-lock.json` or `npm-shrinkwrap.json` file. It also lists common aliases for the command.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/content/commands/npm-ci.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+npm ci
+
+aliases: clean-install, ic, install-clean, isntall-clean
+```
+
+----------------------------------------
+
+TITLE: Handling Backpressure with writable.write() in Node.js
+DESCRIPTION: This JavaScript example demonstrates how to properly handle backpressure when writing to a Node.js Writable stream using the `writable.write()` method. It utilizes the `'drain'` event to pause and resume writing, preventing excessive memory buffering. The `write` function ensures that subsequent writes only occur after the previous chunk has been drained, or immediately if the buffer is not full.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/stream.md#_snippet_25
+
+LANGUAGE: JavaScript
+CODE:
+```
+function write(data, cb) {
+  if (!stream.write(data)) {
+    stream.once('drain', cb);
+  } else {
+    process.nextTick(cb);
+  }
+}
+
+// Wait for cb to be called before doing any other write.
+write('hello', () => {
+  console.log('Write completed, do more writes now.');
+});
+```
+
+----------------------------------------
+
+TITLE: Installing Package from npm Registry with npm install
+DESCRIPTION: Installs a package from the npm registry, typically using the 'latest' tag by default. This command also supports various flags (`--save-prod`, `--save-dev`, `--save-peer`, `--save-optional`, `--no-save`, `--save-exact`) to control how dependencies are saved to `package.json`.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/content/commands/npm-install.md#_snippet_5
+
+LANGUAGE: bash
+CODE:
+```
+npm install sax
+```
+
+----------------------------------------
+
+TITLE: Configuring Node.js Single Executable Preparation Blob (JSON)
+DESCRIPTION: This JSON configuration defines parameters for generating a Node.js single executable preparation blob. It specifies the main script, output path, and optional settings for disabling experimental warnings, enabling startup snapshots, V8 code cache, and including assets. Paths can be absolute or relative to the current working directory.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/single-executable-applications.md#_snippet_15
+
+LANGUAGE: json
+CODE:
+```
+{
+  "main": "/path/to/bundled/script.js",
+  "output": "/path/to/write/the/generated/blob.blob",
+  "disableExperimentalSEAWarning": true, // Default: false
+  "useSnapshot": false,  // Default: false
+  "useCodeCache": true, // Default: false
+  "assets": {  // Optional
+    "a.dat": "/path/to/a.dat",
+    "b.txt": "/path/to/b.txt"
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Setting Max Old Space Size in Node.js (Bash)
+DESCRIPTION: This snippet demonstrates how to set the maximum memory size for V8's old memory section using the `--max-old-space-size` flag. This helps manage memory consumption and reduce excessive garbage collection, especially on machines with limited RAM. For example, setting it to 1536 MiB (1.5 GiB) on a 2 GiB machine leaves room for other processes and prevents swapping.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/cli.md#_snippet_109
+
+LANGUAGE: bash
+CODE:
+```
+node --max-old-space-size=1536 index.js
+```
+
+----------------------------------------
+
+TITLE: Creating HTTP Server with Request Listener (Node.js)
+DESCRIPTION: Demonstrates how to create a basic HTTP server using `http.createServer()` by passing a `requestListener` function directly to handle incoming requests. The server responds with a JSON object containing 'Hello World!'.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/http.md#_snippet_65
+
+LANGUAGE: mjs
+CODE:
+```
+import http from 'node:http';
+
+// Create a local server to receive data from
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({
+    data: 'Hello World!',
+  }));
+});
+
+server.listen(8000);
+```
+
+LANGUAGE: cjs
+CODE:
+```
+const http = require('node:http');
+
+// Create a local server to receive data from
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({
+    data: 'Hello World!',
+  }));
+});
+
+server.listen(8000);
+```
+
+----------------------------------------
+
+TITLE: Importing and Using a Function in an ES Module (Node.js)
+DESCRIPTION: This snippet illustrates how to import and use a function exported from another ECMAScript module (`addTwo.mjs`) in Node.js. The `import` statement brings the `addTwo` function into scope, allowing it to be called.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/esm.md#_snippet_1
+
+LANGUAGE: js
+CODE:
+```
+// app.mjs
+import { addTwo } from './addTwo.mjs';
+
+// Prints: 6
+console.log(addTwo(4));
+```
+
+----------------------------------------
+
+TITLE: Handling Asynchronous Promise Rejections with try...catch in Node.js
+DESCRIPTION: Illustrates error handling for asynchronous Node.js methods that return Promises, specifically using `fs/promises.readFile`. It shows how to use `async/await` with `try...catch` to intercept rejected promises, preventing unhandled rejections and gracefully managing file read errors.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/errors.md#_snippet_1
+
+LANGUAGE: js
+CODE:
+```
+const fs = require('node:fs/promises');
+
+(async () => {
+  let data;
+  try {
+    data = await fs.readFile('a file that does not exist');
+  } catch (err) {
+    console.error('There was an error reading the file!', err);
+    return;
+  }
+  // Otherwise handle the data
+})();
+```
+
+----------------------------------------
+
+TITLE: Deprecated Buffer Constructor with Size
+DESCRIPTION: This constructor is deprecated. Use Buffer.alloc() instead. It creates a new Buffer of the specified size, zero-filled.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/buffer.md#_snippet_163
+
+LANGUAGE: javascript
+CODE:
+```
+new Buffer(size)
+```
+
+----------------------------------------
+
+TITLE: Basic Usage of npm update Command (Shell)
+DESCRIPTION: This snippet shows the fundamental syntax for the `npm update` command, allowing users to update specific packages or all installed packages. It also lists common aliases like `up`, `upgrade`, and `udpate` for convenience.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/output/commands/npm-update.html#_snippet_0
+
+LANGUAGE: Shell
+CODE:
+```
+npm update [<pkg>...]
+
+aliases: up, upgrade, udpate
+```
+
+----------------------------------------
+
+TITLE: Filling a Node.js Buffer with Random Data (CJS)
+DESCRIPTION: This snippet demonstrates how to use `crypto.randomFill` to asynchronously fill a Node.js `Buffer` with cryptographically strong pseudo-random data using CommonJS syntax. It shows examples with no offset/size, with an offset, and with both offset and size parameters. The callback receives an error and the filled buffer, which is then logged as a hexadecimal string.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/crypto.md#_snippet_91
+
+LANGUAGE: cjs
+CODE:
+```
+const { randomFill } = require('node:crypto');
+const { Buffer } = require('node:buffer');
+
+const buf = Buffer.alloc(10);
+randomFill(buf, (err, buf) => {
+  if (err) throw err;
+  console.log(buf.toString('hex'));
+});
+
+randomFill(buf, 5, (err, buf) => {
+  if (err) throw err;
+  console.log(buf.toString('hex'));
+});
+
+// The above is equivalent to the following:
+randomFill(buf, 5, 5, (err, buf) => {
+  if (err) throw err;
+  console.log(buf.toString('hex'));
+});
+```
+
+----------------------------------------
+
+TITLE: Importing the URL Module (ESM)
+DESCRIPTION: This snippet shows how to import the `node:url` module using ECMAScript Modules (ESM) syntax. This is the modern way to access Node.js built-in modules in ES module-enabled environments.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/url.md#_snippet_0
+
+LANGUAGE: mjs
+CODE:
+```
+import url from 'node:url';
+```
+
+----------------------------------------
+
+TITLE: Fetching JSON Data with http.get (Node.js)
+DESCRIPTION: Provides an example of using `http.get()` to make a GET request to a local server, fetch JSON data, and parse the response. It includes error handling for status codes and content types, and demonstrates consuming response data to prevent memory leaks. A local server is also included in the snippet to serve the data for the `http.get` example.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/http.md#_snippet_67
+
+LANGUAGE: js
+CODE:
+```
+http.get('http://localhost:8000/', (res) => {
+  const { statusCode } = res;
+  const contentType = res.headers['content-type'];
+
+  let error;
+  // Any 2xx status code signals a successful response but
+  // here we're only checking for 200.
+  if (statusCode !== 200) {
+    error = new Error('Request Failed.\n' +
+                      `Status Code: ${statusCode}`);
+  } else if (!/^application\/json/.test(contentType)) {
+    error = new Error('Invalid content-type.\n' +
+                      `Expected application/json but received ${contentType}`);
+  }
+  if (error) {
+    console.error(error.message);
+    // Consume response data to free up memory
+    res.resume();
+    return;
+  }
+
+  res.setEncoding('utf8');
+  let rawData = '';
+  res.on('data', (chunk) => { rawData += chunk; });
+  res.on('end', () => {
+    try {
+      const parsedData = JSON.parse(rawData);
+      console.log(parsedData);
+    } catch (e) {
+      console.error(e.message);
+    }
+  });
+}).on('error', (e) => {
+  console.error(`Got error: ${e.message}`);
+});
+
+// Create a local server to receive data from
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({
+    data: 'Hello World!',
+  }));
+});
+
+server.listen(8000);
+```
+
+----------------------------------------
+
+TITLE: Installing Packages with npm
+DESCRIPTION: This command installs packages from the npm registry or a local path. It's commonly used to add dependencies to a project or to install global tools. By default, it installs packages locally into node_modules.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/output/commands/npm.html#_snippet_7
+
+LANGUAGE: Shell
+CODE:
+```
+npm install
+```
+
+----------------------------------------
+
+TITLE: Handling Uncaught Exceptions with process.on('uncaughtException') in Node.js (ESM)
+DESCRIPTION: This snippet demonstrates how to register a handler for the 'uncaughtException' event using ES Modules syntax. When an uncaught exception occurs (e.g., from calling `nonexistentFunc()`), the registered handler captures the error and its origin, writing details to `stderr`. This prevents the process from immediately exiting, allowing other scheduled asynchronous tasks (like the `setTimeout`) to complete, but synchronous code after the exception point will not execute.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/process.md#_snippet_6
+
+LANGUAGE: JavaScript
+CODE:
+```
+import process from 'node:process';
+import fs from 'node:fs';
+
+process.on('uncaughtException', (err, origin) => {
+  fs.writeSync(
+    process.stderr.fd,
+    `Caught exception: ${err}\n` +
+    `Exception origin: ${origin}\n`
+  );
+});
+
+setTimeout(() => {
+  console.log('This will still run.');
+}, 500);
+
+// Intentionally cause an exception, but don't catch it.
+nonexistentFunc();
+console.log('This will not run.');
+```
+
+----------------------------------------
+
+TITLE: Decompressing HTTP Responses (Client) - ESM
+DESCRIPTION: This client-side example demonstrates how to make an HTTP GET request with `Accept-Encoding` headers and decompress the response based on the `Content-Encoding` header using `node:zlib`'s `createBrotliDecompress`, `createGunzip`, or `createInflate` methods. It uses `node:stream.pipeline` for efficient data flow and handles potential errors during decompression.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/zlib.md#_snippet_10
+
+LANGUAGE: JavaScript
+CODE:
+```
+// Client request example
+import fs from 'node:fs';
+import zlib from 'node:zlib';
+import http from 'node:http';
+import process from 'node:process';
+import { pipeline } from 'node:stream';
+
+const request = http.get({ host: 'example.com',
+                           path: '/',
+                           port: 80,
+                           headers: { 'Accept-Encoding': 'br,gzip,deflate' } });
+request.on('response', (response) => {
+  const output = fs.createWriteStream('example.com_index.html');
+
+  const onError = (err) => {
+    if (err) {
+      console.error('An error occurred:', err);
+      process.exitCode = 1;
+    }
+  };
+
+  switch (response.headers['content-encoding']) {
+    case 'br':
+      pipeline(response, zlib.createBrotliDecompress(), output, onError);
+      break;
+    // Or, just use zlib.createUnzip() to handle both of the following cases:
+    case 'gzip':
+      pipeline(response, zlib.createGunzip(), output, onError);
+      break;
+    case 'deflate':
+      pipeline(response, zlib.createInflate(), output, onError);
+      break;
+    default:
+      pipeline(response, output, onError);
+      break;
+  }
+});
+```
+
+----------------------------------------
+
+TITLE: npm uninstall Command Syntax
+DESCRIPTION: This snippet shows the basic syntax for the `npm uninstall` command, allowing removal of one or more packages. It also lists common aliases such as `unlink`, `remove`, `rm`, `r`, and `un`.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/output/commands/npm-uninstall.html#_snippet_0
+
+LANGUAGE: shell
+CODE:
+```
+npm uninstall [<@scope>/]<pkg>...
+
+aliases: unlink, remove, rm, r, un
+```
+
+----------------------------------------
+
+TITLE: Demonstrating Synchronous Requirement for Node.js 'exit' Event
+DESCRIPTION: This example highlights a critical limitation of the Node.js `process` `'exit'` event: listeners must only perform synchronous operations. Any asynchronous calls, such as `setTimeout`, will not execute because the process terminates immediately after all `'exit'` listeners have completed, abandoning any remaining work in the event loop.
+SOURCE: https://github.com/nodejs/node/blob/main/doc/api/process.md#_snippet_3
+
+LANGUAGE: ECMAScript Modules
+CODE:
+```
+import process from 'node:process';
+
+process.on('exit', (code) => {
+  setTimeout(() => {
+    console.log('This will not run');
+  }, 0);
+});
+```
+
+LANGUAGE: CommonJS
+CODE:
+```
+const process = require('node:process');
+
+process.on('exit', (code) => {
+  setTimeout(() => {
+    console.log('This will not run');
+  }, 0);
+});
+```
+
+----------------------------------------
+
+TITLE: Specifying Various Dependency Version Ranges in package.json
+DESCRIPTION: This comprehensive example showcases diverse methods for defining dependency version ranges in `package.json`, including exact versions, ranges (e.g., `>`, `<=`), tilde (`~`), caret (`^`), `x` wildcards, URL-based dependencies, local paths, and package aliases. It illustrates the flexibility of npm's dependency resolution.
+SOURCE: https://github.com/nodejs/node/blob/main/deps/npm/docs/output/configuring-npm/npm-json.html#_snippet_22
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "dependencies": {
+    "foo": "1.0.0 - 2.9999.9999",
+    "bar": ">=1.0.2 <2.1.2",
+    "baz": ">1.0.2 <=2.3.4",
+    "boo": "2.0.1",
+    "qux": "<1.0.0 || >=2.3.1 <2.4.5 || >=2.5.2 <3.0.0",
+    "asd": "http://npmjs.com/example.tar.gz",
+    "til": "~1.2",
+    "elf": "~1.2.3",
+    "two": "2.x",
+    "thr": "3.3.x",
+    "lat": "latest",
+    "dyl": "file:../dyl",
+    "kpg": "npm:pkg@1.0.0"
+  }
+}
+```

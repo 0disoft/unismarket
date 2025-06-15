@@ -1,0 +1,1083 @@
+TITLE: Introducing pnpm dlx Command
+DESCRIPTION: Announces the new `pnpm dlx` command, designed for executing packages in a temporary environment without installing them globally or locally. It's useful for one-off command executions and avoids polluting the global package space.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/exec/plugin-commands-script-runners/CHANGELOG.md#_snippet_12
+
+LANGUAGE: shell
+CODE:
+```
+pnpm dlx <command> [args...]
+```
+
+----------------------------------------
+
+TITLE: Rebasing and Force Pushing Git Branch for PR Updates
+DESCRIPTION: These Git commands are used to update a pull request after feedback. `git rebase main -i` interactively reapplies commits on top of the latest `main` branch, cleaning up history. `git push -f` then force-pushes the rebased branch to the remote, updating the existing pull request.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/CONTRIBUTING.md#_snippet_7
+
+LANGUAGE: shell
+CODE:
+```
+git rebase main -i
+git push -f
+```
+
+----------------------------------------
+
+TITLE: Configuring `patchedDependencies` with Version Ranges and Exact Versions (YAML)
+DESCRIPTION: This YAML configuration illustrates how to define `patchedDependencies` in `pnpm-workspace.yaml` to apply specific patches based on package name, version range, or exact version. It demonstrates the precedence where exact versions override version ranges, which in turn override name-only patches. For example, `foo@2.1.0` gets `foo-3.patch`, `foo@^2.0.0` (excluding `2.1.0`) gets `foo-2.patch`, and other `foo` versions get `foo-1.patch`.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/patching/types/CHANGELOG.md#_snippet_0
+
+LANGUAGE: yaml
+CODE:
+```
+patchedDependencies:
+  foo: patches/foo-1.patch
+  foo@^2.0.0: patches/foo-2.patch
+  foo@2.1.0: patches/foo-3.patch
+```
+
+----------------------------------------
+
+TITLE: Installing Dependencies with pnpm CLI
+DESCRIPTION: This command demonstrates the basic usage of pnpm to install project dependencies. It serves as a direct replacement for `npm install` or `yarn install`, leveraging pnpm's efficient content-addressable storage for faster and space-saving installations.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pnpm/README.md#_snippet_0
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm install
+```
+
+----------------------------------------
+
+TITLE: Defining pnpm Patched Dependencies with Version Ranges (YAML)
+DESCRIPTION: This YAML configuration demonstrates how to define `patchedDependencies` in pnpm, allowing specific patches to be applied based on package name, version ranges, or exact versions. Exact versions take precedence over version ranges, which in turn override name-only patches, providing a hierarchical patching mechanism.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/deps/graph-builder/CHANGELOG.md#_snippet_0
+
+LANGUAGE: YAML
+CODE:
+```
+patchedDependencies:
+  foo: patches/foo-1.patch
+  foo@^2.0.0: patches/foo-2.patch
+  foo@2.1.0: patches/foo-3.patch
+```
+
+----------------------------------------
+
+TITLE: Installing pnpm CLI with curl on Unix-like Systems
+DESCRIPTION: This command downloads and executes the pnpm installation script using `curl`. It's suitable for macOS, Linux, and Windows Subsystem for Linux, providing a convenient way to install the pnpm CLI without a pre-existing Node.js installation.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pnpm/artifacts/exe/README.md#_snippet_0
+
+LANGUAGE: Shell
+CODE:
+```
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
+
+----------------------------------------
+
+TITLE: Pnpm Node_modules Structure After Peer Dependency Deduplication
+DESCRIPTION: This snippet demonstrates the `node_modules` directory structure when `dedupe-peer-dependents` is `true`. It shows how pnpm deduplicates `webpack` instances, allowing both projects to share a single `webpack` installation that has `esbuild` resolved, even if one project doesn't directly depend on `esbuild`.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/config/CHANGELOG.md#_snippet_8
+
+LANGUAGE: Directory Structure
+CODE:
+```
+node_modules
+  .pnpm
+    webpack@1.0.0_esbuild@1.0.0
+project1
+  node_modules
+    webpack -> ../../node_modules/.pnpm/webpack@1.0.0_esbuild@1.0.0/node_modules/webpack
+project2
+  node_modules
+    webpack -> ../../node_modules/.pnpm/webpack@1.0.0_esbuild@1.0.0/node_modules/webpack
+    esbuild
+```
+
+----------------------------------------
+
+TITLE: Specifying pnpm Version in package.json
+DESCRIPTION: This JSON snippet demonstrates how to declare the desired pnpm version for a project within the `packageManager` field of `package.json`. When the `manage-package-manager-versions` setting is enabled, pnpm will automatically switch to this specified version, aligning with Corepack's behavior.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/config/CHANGELOG.md#_snippet_4
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "packageManager": "pnpm@9.3.0"
+}
+```
+
+----------------------------------------
+
+TITLE: pnpm exec Modifying PATH for Binaries
+DESCRIPTION: Highlights that `pnpm exec` automatically adds the `node_modules/.bin` directory to the system's PATH. This makes local package executables directly available during command execution without needing to specify their full path.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/exec/plugin-commands-script-runners/CHANGELOG.md#_snippet_15
+
+LANGUAGE: shell
+CODE:
+```
+pnpm exec <local-binary-command>
+```
+
+----------------------------------------
+
+TITLE: Adding JSR Packages - With Version Range (pnpm)
+DESCRIPTION: This command shows how to add a JSR package with a specific version range using pnpm. It extends the basic `pnpm add jsr:` syntax to include a version specifier, allowing for more precise dependency management from the JSR registry.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/normalize-registries/CHANGELOG.md#_snippet_1
+
+LANGUAGE: sh
+CODE:
+```
+pnpm add jsr:<pkg_name>@<range>
+```
+
+----------------------------------------
+
+TITLE: Pnpm Node_modules Structure Before Peer Dependency Deduplication
+DESCRIPTION: This snippet illustrates the `node_modules` directory structure in a pnpm workspace when `dedupe-peer-dependents` is `false`. It shows how `webpack` instances are duplicated due to differing `esbuild` peer dependency resolutions across projects, leading to two distinct `webpack` installations in `.pnpm`.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/config/CHANGELOG.md#_snippet_7
+
+LANGUAGE: Directory Structure
+CODE:
+```
+node_modules
+  .pnpm
+    webpack@1.0.0_esbuild@1.0.0
+    webpack@1.0.0
+project1
+  node_modules
+    webpack -> ../../node_modules/.pnpm/webpack@1.0.0/node_modules/webpack
+project2
+  node_modules
+    webpack -> ../../node_modules/.pnpm/webpack@1.0.0_esbuild@1.0.0/node_modules/webpack
+    esbuild
+```
+
+----------------------------------------
+
+TITLE: Resolving npm packages with @pnpm/npm-resolver in JavaScript
+DESCRIPTION: This JavaScript example demonstrates how to use `@pnpm/npm-resolver` to resolve package information. It initializes the resolver with configuration options like store path and registry, then queries for a specific package (`is-positive@1.0.0`) and logs the detailed resolution result, including package metadata and tarball information.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/npm-resolver/README.md#_snippet_1
+
+LANGUAGE: JavaScript
+CODE:
+```
+'use strict'
+const createResolveFromNpm = require('@pnpm/npm-resolver').default
+
+const resolveFromNpm = createResolveFromNpm({
+  store: '.store',
+  offline: false,
+  rawConfig: {
+    registry: 'https://registry.npmjs.org/',
+  },
+})
+
+resolveFromNpm({alias: 'is-positive', bareSpecifier: '1.0.0'}, {
+  registry: 'https://registry.npmjs.org/',
+})
+.then(resolveResult => console.log(JSON.stringify(resolveResult, null, 2)))
+//> {
+//    "id": "registry.npmjs.org/is-positive/1.0.0",
+//    "latest": "3.1.0",
+//    "package": {
+//      "name": "is-positive",
+//      "version": "1.0.0",
+//      "devDependencies": {
+//        "ava": "^0.0.4"
+//      },
+//      "_hasShrinkwrap": false,
+//      "directories": {},
+//      "dist": {
+//        "shasum": "88009856b64a2f1eb7d8bb0179418424ae0452cb",
+//        "tarball": "https://registry.npmjs.org/is-positive/-/is-positive-1.0.0.tgz"
+//      },
+//      "engines": {
+//        "node": ">=0.10.0"
+//      }
+//    },
+//    "resolution": {
+//      "integrity": "sha1-iACYVrZKLx632LsBeUGEJK4EUss=",
+//      "registry": "https://registry.npmjs.org/",
+//      "tarball": "https://registry.npmjs.org/is-positive/-/is-positive-1.0.0.tgz"
+//    },
+//    "resolvedVia": "npm-registry"
+//  }
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with pnpm (Version Range)
+DESCRIPTION: Illustrates the `pnpm add` command syntax for installing JSR packages with a specified version range. This allows users to control the exact version or range of the JSR package added to their project.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pkg-manager/package-requester/CHANGELOG.md#_snippet_1
+
+LANGUAGE: sh
+CODE:
+```
+pnpm add jsr:<pkg_name>@<range>
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with Version Range using PNPM
+DESCRIPTION: This command shows how to install a JSR package with a specific version range using `pnpm add`. Users can append `@<range>` to the `jsr:<pkg_name>` to control the installed version, similar to how npm packages are installed with version specifiers.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/default-resolver/CHANGELOG.md#_snippet_1
+
+LANGUAGE: sh
+CODE:
+```
+pnpm add jsr:<pkg_name>@<range>
+```
+
+----------------------------------------
+
+TITLE: Example: Installing a Specific JSR Package with pnpm
+DESCRIPTION: Provides a concrete example of using `pnpm add` to install a JSR package named `@foo/bar`. This command will add the package to `package.json` with a `jsr:` prefix.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pkg-manager/package-requester/CHANGELOG.md#_snippet_2
+
+LANGUAGE: sh
+CODE:
+```
+pnpm add jsr:@foo/bar
+```
+
+----------------------------------------
+
+TITLE: Running Tests in a Specific Project Directory with pnpm
+DESCRIPTION: This command executes the test suite for the current project. It should be run from within the project's directory after making modifications to ensure that changes have not introduced regressions.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/CONTRIBUTING.md#_snippet_1
+
+LANGUAGE: shell
+CODE:
+```
+pnpm test
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with pnpm
+DESCRIPTION: This command demonstrates how to install a JSR package using pnpm. It uses the `jsr:` prefix to specify that the package should be resolved from the JSR registry.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/npm-resolver/CHANGELOG.md#_snippet_0
+
+LANGUAGE: shell
+CODE:
+```
+pnpm add jsr:<pkg_name>
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with pnpm (Latest Version)
+DESCRIPTION: Demonstrates the `pnpm add` command syntax for installing JSR packages, fetching the latest compatible version. This command adds a `jsr:` prefixed entry to `package.json`.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pkg-manager/package-requester/CHANGELOG.md#_snippet_0
+
+LANGUAGE: sh
+CODE:
+```
+pnpm add jsr:<pkg_name>
+```
+
+----------------------------------------
+
+TITLE: Adding JSR Packages via pnpm CLI
+DESCRIPTION: This snippet demonstrates the command-line interface for adding JSR packages using `pnpm add`. It covers adding a package by name, specifying a version range, and a concrete example for `@foo/bar`.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/resolver-base/CHANGELOG.md#_snippet_0
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:<pkg_name>
+```
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:<pkg_name>@<range>
+```
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:@foo/bar
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with pnpm CLI
+DESCRIPTION: This command demonstrates the basic syntax for adding a JSR package to a project using `pnpm add`. It allows specifying the package name with the `jsr:` protocol prefix. This is a new feature introduced to support JSR packages directly.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pkg-manifest/exportable-manifest/CHANGELOG.md#_snippet_0
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:<pkg_name>
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Package with pnpm
+DESCRIPTION: This command demonstrates how to add a JSR package using pnpm. It installs the specified JSR package into the project's dependencies, leveraging the new JSR support.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/store/store-controller-types/CHANGELOG.md#_snippet_0
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:<pkg_name>
+```
+
+----------------------------------------
+
+TITLE: Configuring pnpm for Windows x64 Optional Dependencies (JSON)
+DESCRIPTION: This JSON configuration snippet demonstrates how to specify `supportedArchitectures` in `package.json` to instruct pnpm to install optional dependencies specifically for Windows x64 systems. It ensures that only dependencies compatible with this operating system and CPU architecture are considered during installation.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/releasing/plugin-commands-publishing/CHANGELOG.md#_snippet_7
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Using pnpm create Command
+DESCRIPTION: Introduces the new `pnpm create` command, which functions similarly to `yarn create` for scaffolding new projects or components. Users can specify a template name to quickly set up a new project structure.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/exec/plugin-commands-script-runners/CHANGELOG.md#_snippet_9
+
+LANGUAGE: shell
+CODE:
+```
+pnpm create <template-name>
+```
+
+----------------------------------------
+
+TITLE: Defining Package Scripts in package.json (JSON)
+DESCRIPTION: This JSON snippet illustrates a basic `package.json` structure for a test fixture. It defines a `build` script that simply echoes a string, serving as a common pattern for testing package script execution within the pnpm ecosystem.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/__utils__/test-ipc-server/README.md#_snippet_0
+
+LANGUAGE: json
+CODE:
+```
+{
+  "name": "@pnpm/example-test-fixture",
+  "private": true,
+  "scripts": {
+    "build": "echo 'This script should run'"
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Listing pnpm Package Licenses (CLI)
+DESCRIPTION: This command is used to display license information for installed packages. The `--json` flag changes the output format to JSON, and the `--filter` option allows checking licenses for a subset of workspace projects. It now prints license info for all versions of a package if licenses differ.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/reviewing/plugin-commands-licenses/CHANGELOG.md#_snippet_0
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm licenses list
+```
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm licenses list --json
+```
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm licenses list --filter <pattern>
+```
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm license ls
+```
+
+----------------------------------------
+
+TITLE: Example pnpm Script for Recursive Build
+DESCRIPTION: This JSON snippet illustrates a 'build' script in a 'package.json' that uses 'pnpm run -r build' for recursive execution. It's provided in the context of a fix ensuring that a recursive run command does not infinitely re-execute the script in the originating package, preventing recursion issues (e.g., #2528).
+SOURCE: https://github.com/pnpm/pnpm/blob/main/exec/plugin-commands-script-runners/CHANGELOG.md#_snippet_17
+
+LANGUAGE: JSON
+CODE:
+```
+"scripts": {
+  "build": "pnpm run -r build"
+}
+```
+
+----------------------------------------
+
+TITLE: Example of Installing a Specific JSR Package with pnpm
+DESCRIPTION: This is a concrete example of installing a JSR package named `@foo/bar` using pnpm. It illustrates the practical application of the `pnpm add jsr:` syntax for a real package name.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/store/store-controller-types/CHANGELOG.md#_snippet_2
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:@foo/bar
+```
+
+----------------------------------------
+
+TITLE: Configuring Patched Dependencies in package.json (pnpm)
+DESCRIPTION: This JSON snippet demonstrates how to configure patched dependencies within a `package.json` file using the `pnpm.patchedDependencies` field. It specifies a package name with its exact version (e.g., `eslint@1.0.0`) and the relative path to its corresponding patch file (e.g., `./patches/eslint@1.0.0.patch`). This allows pnpm to apply custom patches to specific dependencies during installation.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/exec/lifecycle/CHANGELOG.md#_snippet_0
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "patchedDependencies": {
+      "eslint@1.0.0": "./patches/eslint@1.0.0.patch"
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Configuring pnpm to Ignore GHSA Codes (JSON)
+DESCRIPTION: This JSON snippet shows how to configure `package.json` to ignore specific GitHub Security Advisories (GHSAs) during a `pnpm audit`. The `pnpm.auditConfig.ignoreGhsas` array should contain a list of GHSA codes that pnpm should disregard when performing security audits.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/lockfile/plugin-commands-audit/CHANGELOG.md#_snippet_2
+
+LANGUAGE: json
+CODE:
+```
+{
+  "pnpm": {
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-42xw-2xvc-qx8m",
+        "GHSA-4w2v-q235-vp99",
+        "GHSA-cph5-m8f7-6c5x",
+        "GHSA-vh95-rmgr-6w4m"
+      ]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Ignoring GHSA Vulnerabilities in pnpm Audit (JSON)
+DESCRIPTION: This snippet illustrates how to configure pnpm to ignore specific vulnerabilities identified by their GHSA codes. The `ignoreGhsas` array within `pnpm.auditConfig` in `package.json` allows users to list GHSA identifiers that should be excluded from audit reports.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/packages/types/CHANGELOG.md#_snippet_1
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-42xw-2xvc-qx8m",
+        "GHSA-4w2v-q235-vp99",
+        "GHSA-cph5-m8f7-6c5x",
+        "GHSA-vh95-rmgr-6w4m"
+      ]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Configuring PNPM Settings in `pnpm-workspace.yaml`
+DESCRIPTION: The `pnpm-workspace.yaml` file can now be used to configure all settings typically found in `.npmrc`, using camelCase for property names. This example demonstrates setting `verifyDepsBeforeRun`, `optimisticRepeatInstall`, and `publicHoistPattern` directly within the workspace configuration.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/config/CHANGELOG.md#_snippet_2
+
+LANGUAGE: YAML
+CODE:
+```
+verifyDepsBeforeRun: install
+optimisticRepeatInstall: true
+publicHoistPattern:
+  - "*types*"
+  - "!@types/react"
+```
+
+----------------------------------------
+
+TITLE: Building Project Artifacts - pnpm
+DESCRIPTION: Executes the `build` script defined in the project's `package.json` using `pnpm`. This command compiles source code, bundles assets, or performs other tasks necessary to generate the final distributable artifacts of the project.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/__utils__/build-artifacts/README.md#_snippet_2
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm build
+```
+
+----------------------------------------
+
+TITLE: Pushing a Git Branch to Remote for PR
+DESCRIPTION: This Git command pushes the local `my-fix-branch` to the `origin` remote repository (typically GitHub). This makes the branch and its commits available for creating a pull request.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/CONTRIBUTING.md#_snippet_6
+
+LANGUAGE: shell
+CODE:
+```
+git push origin my-fix-branch
+```
+
+----------------------------------------
+
+TITLE: Running pnpm dlx with Version Specifier
+DESCRIPTION: Demonstrates how to use `pnpm dlx` to execute a package with a specific version, such as `create-svelte@next`. This allows for running CLI tools from packages without a global installation, ensuring the correct version is used.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/exec/plugin-commands-script-runners/CHANGELOG.md#_snippet_7
+
+LANGUAGE: shell
+CODE:
+```
+pnpm dlx create-svelte@next
+```
+
+----------------------------------------
+
+TITLE: Transformed Package.json Entry for JSR Dependency on Publish
+DESCRIPTION: This JSON snippet illustrates the transformation of a JSR dependency entry in `package.json` when the package is published. The `jsr:` prefix is converted to an `npm:` alias pointing to the `@jsr` scope, ensuring compatibility with npm, older Yarn versions, and previous pnpm versions.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/default-resolver/CHANGELOG.md#_snippet_4
+
+LANGUAGE: json
+CODE:
+```
+{
+  "dependencies": {
+    "@foo/bar": "npm:@jsr/foo__bar@^0.1.2"
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Running Specific Jest Tests with pnpm Filter and Options
+DESCRIPTION: This command demonstrates how to run a specific test case within a particular file using `pnpm` and Jest. The `--filter` option targets the 'core' project, and the `-t` option (a Jest flag) specifies the exact test description to run.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/CONTRIBUTING.md#_snippet_3
+
+LANGUAGE: shell
+CODE:
+```
+pnpm --filter core run test test/lockfile.ts -t "lockfile has dev deps even when installing for prod only"
+```
+
+----------------------------------------
+
+TITLE: Configuring Supported Architectures in package.json (JSON)
+DESCRIPTION: This `pnpm` configuration in `package.json` allows specifying target architectures for which optional dependencies should be installed. It supports defining operating systems (`os`), CPU architectures (`cpu`), and `libc` versions. The `current` value for `os` or `cpu` indicates the system running the install.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/reviewing/plugin-commands-licenses/CHANGELOG.md#_snippet_1
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+    }
+  }
+}
+```
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32", "darwin", "current"],
+      "cpu": ["x64", "arm64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Allowing Any Peer Dependency Version in pnpm (JSON)
+DESCRIPTION: This JSON configuration illustrates the `pnpm.peerDependencyRules.allowAny` setting, which allows specified peer dependencies to resolve from any version, bypassing range restrictions. It accepts an array of package name patterns to mute warnings about version mismatches for those dependencies.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/packages/types/CHANGELOG.md#_snippet_10
+
+LANGUAGE: json
+CODE:
+```
+{
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowAny": ["@babel/*", "eslint"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Specifying Node.js Version for Lifecycle Scripts in package.json (JSON)
+DESCRIPTION: This snippet introduces the `pnpm.executionEnv.nodeVersion` field in `package.json`, enabling users to specify a particular Node.js version for executing lifecycle scripts within individual packages in a workspace.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/releasing/plugin-commands-publishing/CHANGELOG.md#_snippet_3
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "executionEnv": {
+      "nodeVersion": "18.12.0"
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Transformed Package.json Entry for Publishing JSR Package
+DESCRIPTION: Illustrates how a JSR package dependency in `package.json` is transformed when publishing. The `jsr:` prefix is converted to `npm:@jsr/` to ensure compatibility with npm, older Yarn versions, and previous pnpm versions.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pkg-manager/package-requester/CHANGELOG.md#_snippet_4
+
+LANGUAGE: json
+CODE:
+```
+{
+  "dependencies": {
+    "@foo/bar": "npm:@jsr/foo__bar@^0.1.2"
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Configuring Multi-Platform Supported Architectures in pnpm
+DESCRIPTION: This JSON snippet illustrates a more comprehensive `pnpm` configuration in `package.json` for installing optional dependencies across multiple platforms. It specifies support for Windows, macOS, and the current system's architecture, including both x64 and arm64 CPUs.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/workspace/find-packages/CHANGELOG.md#_snippet_1
+
+LANGUAGE: JSON
+CODE:
+```
+{
+    "pnpm": {
+      "supportedArchitectures": {
+        "os": ["win32", "darwin", "current"],
+        "cpu": ["x64", "arm64"]
+      }
+    }
+  }
+```
+
+----------------------------------------
+
+TITLE: Configuring pnpm for Multiple OS and CPU Architectures (JSON)
+DESCRIPTION: This JSON snippet illustrates a more comprehensive `pnpm` configuration within `package.json` for `supportedArchitectures`. It directs pnpm to install optional dependencies for Windows (`win32`), macOS (`darwin`), and the `current` system's architecture, supporting both `x64` and `arm64` CPUs. This allows for broader compatibility across different environments.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/store/plugin-commands-store/CHANGELOG.md#_snippet_1
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32", "darwin", "current"],
+      "cpu": ["x64", "arm64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Example: Adding a Scoped JSR Package with pnpm
+DESCRIPTION: This is a concrete example of adding a scoped JSR package (`@foo/bar`) using the `pnpm add` command. It illustrates the syntax for installing a specific JSR package.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/npm-resolver/CHANGELOG.md#_snippet_2
+
+LANGUAGE: shell
+CODE:
+```
+pnpm add jsr:@foo/bar
+```
+
+----------------------------------------
+
+TITLE: Configuring pnpm for Windows x64 Optional Dependencies
+DESCRIPTION: This configuration snippet for `package.json` instructs pnpm to install optional dependencies specifically for the Windows x64 architecture. It uses the `supportedArchitectures` field within the `pnpm` object to define the target operating system and CPU, which is useful for cross-platform development or CI/CD environments.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/deps/graph-builder/CHANGELOG.md#_snippet_2
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Configuring Registry-Scoped SSL in pnpm (.npmrc)
+DESCRIPTION: This snippet details new configuration options for pnpm, allowing users to specify SSL certificates, keys, and CA files on a per-registry basis. This enhances security and flexibility when interacting with private registries.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/releasing/plugin-commands-publishing/CHANGELOG.md#_snippet_4
+
+LANGUAGE: Configuration
+CODE:
+```
+//registry.mycomp.com/:certfile=server-cert.pem
+//registry.mycomp.com/:keyfile=server-key.pem
+//registry.mycomp.com/:cafile=client-cert.pem
+```
+
+----------------------------------------
+
+TITLE: Installing pnpm CLI with wget on Unix-like Systems
+DESCRIPTION: This command downloads and executes the pnpm installation script using `wget`. It serves as an alternative to `curl` for macOS, Linux, and Windows Subsystem for Linux environments where `wget` might be preferred or pre-installed.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pnpm/artifacts/exe/README.md#_snippet_1
+
+LANGUAGE: Shell
+CODE:
+```
+wget -qO- https://get.pnpm.io/install.sh | sh -
+```
+
+----------------------------------------
+
+TITLE: Updating Main Branch with Latest Upstream Changes
+DESCRIPTION: This Git command fetches changes from the `upstream` remote's `main` branch and integrates them into the local `main` branch using a fast-forward merge. This ensures the local `main` branch is up-to-date with the project's official repository.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/CONTRIBUTING.md#_snippet_11
+
+LANGUAGE: shell
+CODE:
+```
+git pull --ff upstream main
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with PNPM
+DESCRIPTION: PNPM now supports installing JSR packages using `pnpm add jsr:<pkg_name>[@<range>]`. This syntax adds a `jsr:` prefixed entry to `package.json`, which is automatically transformed to an `npm:@jsr/` scoped package upon publishing for broader compatibility.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/config/CHANGELOG.md#_snippet_1
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:<pkg_name>
+```
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:<pkg_name>@<range>
+```
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:@foo/bar
+```
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "dependencies": {
+    "@foo/bar": "jsr:^0.1.2"
+  }
+}
+```
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "dependencies": {
+    "@foo/bar": "npm:@jsr/foo__bar@^0.1.2"
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Applying Patch to Exact Version with pnpm patch pkg@x.y.z (Shell)
+DESCRIPTION: This command initiates a patch process for a specific version of a package, 'pkg@x.y.z'. When followed by 'pnpm patch-commit', it will always create a 'pkg@x.y.z' entry in 'pnpm.patchedDependencies', ensuring the patch is applied only to that exact version.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/exec/build-modules/CHANGELOG.md#_snippet_2
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm patch pkg@x.y.z
+```
+
+----------------------------------------
+
+TITLE: Configuring pnpm for Windows x64 Architecture (JSON)
+DESCRIPTION: This JSON configuration snippet demonstrates how to set the "supportedArchitectures" field in "package.json" to instruct pnpm to install optional dependencies specifically for Windows x64 systems. It specifies the operating system as 'win32' and the CPU architecture as 'x64'.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/reviewing/license-scanner/CHANGELOG.md#_snippet_0
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with Version Range using pnpm
+DESCRIPTION: This command shows how to install a JSR package with a specific version range using pnpm. The `jsr:` prefix indicates a JSR package, and `@<range>` specifies the desired version constraint.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/npm-resolver/CHANGELOG.md#_snippet_1
+
+LANGUAGE: shell
+CODE:
+```
+pnpm add jsr:<pkg_name>@<range>
+```
+
+----------------------------------------
+
+TITLE: Configuring pnpm for Windows x64 Optional Dependencies (JSON)
+DESCRIPTION: This JSON configuration snippet for `package.json` demonstrates how to instruct pnpm to install optional dependencies specifically for the Windows x64 architecture. It uses the `supportedArchitectures` field within the `pnpm` object to define the target operating system and CPU.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/config/CHANGELOG.md#_snippet_5
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Configuring Supported Architectures for Optional Dependencies in pnpm (JSON)
+DESCRIPTION: This configuration allows pnpm to install optional dependencies for specified operating systems and CPU architectures, even if they differ from the system running the install. It uses the `supportedArchitectures` field within the `pnpm` object in `package.json`.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/cli/cli-utils/CHANGELOG.md#_snippet_1
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+    }
+  }
+}
+```
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32", "darwin", "current"],
+      "cpu": ["x64", "arm64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Configuring pnpm for Windows x64 Optional Dependencies (JSON)
+DESCRIPTION: This JSON snippet demonstrates how to configure `pnpm` in `package.json` to specify `supportedArchitectures`. It instructs pnpm to install optional dependencies specifically for the Windows x64 operating system and CPU architecture. This is useful when you need to ensure dependencies are compatible with a target environment different from the build environment.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/store/plugin-commands-store/CHANGELOG.md#_snippet_0
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Configuring Registry-Scoped SSL for pnpm
+DESCRIPTION: This configuration snippet demonstrates how to set up registry-scoped SSL certificates, keys, and CA files for pnpm. It allows specifying `certfile`, `keyfile`, and `cafile` for a specific registry URL, enhancing security for private registries. This feature addresses issue #7427 and is related to PR #7626.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/env/plugin-commands-env/CHANGELOG.md#_snippet_0
+
+LANGUAGE: Configuration
+CODE:
+```
+//registry.mycomp.com/:certfile=server-cert.pem
+//registry.mycomp.com/:keyfile=server-key.pem
+//registry.mycomp.com/:cafile=client-cert.pem
+```
+
+----------------------------------------
+
+TITLE: Committing a Patch with pnpm patch-commit (Shell)
+DESCRIPTION: After running 'pnpm patch' and making edits in the '$edit_dir' (the temporary directory created by 'pnpm patch'), this command commits the changes. The entry created in 'pnpm.patchedDependencies' (either 'pkg' or 'pkg@x.y.z') depends on the initial 'pnpm patch' command and user choices.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/exec/build-modules/CHANGELOG.md#_snippet_1
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm patch-commit $edit_dir
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with Version Range using pnpm CLI
+DESCRIPTION: This command extends the JSR package installation by allowing a specific version range to be appended to the package name. This provides control over the installed package version, similar to standard npm package installations.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/pkg-manifest/exportable-manifest/CHANGELOG.md#_snippet_1
+
+LANGUAGE: Shell
+CODE:
+```
+pnpm add jsr:<pkg_name>@<range>
+```
+
+----------------------------------------
+
+TITLE: Excluding Packages from Hoisting in pnpm Configuration
+DESCRIPTION: This snippet demonstrates how to use the '!' prefix in `public-hoist-pattern` and `hoist-pattern` settings to exclude specific packages from hoisting. It shows examples for `*types*` and `*eslint*` patterns, explicitly excluding `@types/react` and `*eslint-plugin*` respectively. This feature allows fine-grained control over dependency hoisting behavior in pnpm.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/matcher/CHANGELOG.md#_snippet_0
+
+LANGUAGE: pnpm Configuration
+CODE:
+```
+public-hoist-pattern[]='*types*'
+public-hoist-pattern[]='!@types/react'
+
+hoist-pattern[]='*eslint*'
+hoist-pattern[]='!*eslint-plugin*'
+```
+
+----------------------------------------
+
+TITLE: Configuring Supported Architectures for Optional Dependencies (JSON)
+DESCRIPTION: This configuration allows pnpm to install optional dependencies for specific operating systems, CPU architectures, and libc versions, even if they differ from the system running the install. It's defined within the 'pnpm' field of 'package.json'. The 'os' and 'cpu' fields accept arrays of target platforms, and 'current' can be used to include the host system's architecture.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/package-is-installable/CHANGELOG.md#_snippet_0
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+    }
+  }
+}
+```
+
+LANGUAGE: JSON
+CODE:
+```
+{
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32", "darwin", "current"],
+      "cpu": ["x64", "arm64"]
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Installing JSR Packages with PNPM
+DESCRIPTION: This command demonstrates how to install a JSR package using `pnpm add`. It allows users to specify a JSR package by prefixing its name with `jsr:`. This is a new feature for pnpm, enabling direct installation of packages from the JSR registry.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/default-resolver/CHANGELOG.md#_snippet_0
+
+LANGUAGE: sh
+CODE:
+```
+pnpm add jsr:<pkg_name>
+```
+
+----------------------------------------
+
+TITLE: Running Tests for a Specific Project Using pnpm Filter
+DESCRIPTION: This command allows running tests for a particular project from any directory in the repository. The `--filter` option specifies the project name (e.g., 'core') for which the tests should be executed.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/CONTRIBUTING.md#_snippet_2
+
+LANGUAGE: shell
+CODE:
+```
+pnpm --filter core test
+```
+
+----------------------------------------
+
+TITLE: Configuring pnpm to Ignore CVEs in package.json
+DESCRIPTION: This snippet demonstrates how to configure pnpm to ignore specific Common Vulnerabilities and Exposures (CVEs) during an audit. By adding an `auditConfig.ignoreCves` array within the `pnpm` field of `package.json`, users can specify a list of CVE identifiers that should be excluded from audit reports. This allows for fine-grained control over which vulnerabilities are flagged, useful for known false positives or acceptable risks.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/lockfile/plugin-commands-audit/CHANGELOG.md#_snippet_3
+
+LANGUAGE: JSON
+CODE:
+```
+{
+    "pnpm": {
+      "auditConfig": {
+        "ignoreCves": [
+          "CVE-2019-10742",
+          "CVE-2020-28168",
+          "CVE-2021-3749",
+          "CVE-2020-7598"
+        ]
+      }
+    }
+  }
+```
+
+----------------------------------------
+
+TITLE: Example: Installing a Scoped JSR Package with PNPM
+DESCRIPTION: This is a concrete example of installing a scoped JSR package, `@foo/bar`, using `pnpm add`. It illustrates the practical application of the `jsr:` prefix for a real package name, demonstrating the simplicity of the new JSR integration.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/resolving/default-resolver/CHANGELOG.md#_snippet_2
+
+LANGUAGE: sh
+CODE:
+```
+pnpm add jsr:@foo/bar
+```
+
+----------------------------------------
+
+TITLE: Adding JSR Packages - Example (pnpm)
+DESCRIPTION: An example command demonstrating how to add a specific JSR package, `@foo/bar`, using pnpm. This illustrates the practical application of the `pnpm add jsr:` command for installing a scoped JSR package.
+SOURCE: https://github.com/pnpm/pnpm/blob/main/config/normalize-registries/CHANGELOG.md#_snippet_2
+
+LANGUAGE: sh
+CODE:
+```
+pnpm add jsr:@foo/bar
+```

@@ -1,0 +1,1234 @@
+TITLE: Creating Supabase Client Utility Functions for Next.js
+DESCRIPTION: Create utility functions to initialize Supabase clients for use in Client Components and Server Components/Actions/Route Handlers, handling cookie management for server-side rendering.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/server-side/nextjs.mdx#_snippet_2
+
+LANGUAGE: ts
+CODE:
+```
+import { createBrowserClient } from '@supabase/ssr'
+
+export function createClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
+```
+
+LANGUAGE: ts
+CODE:
+```
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+export async function createClient() {
+  const cookieStore = await cookies()
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        }
+      }
+    }
+  )
+}
+```
+
+----------------------------------------
+
+TITLE: Creating User Profiles Table and Auth Trigger with Security Definer (SQL/PL/pgSQL)
+DESCRIPTION: This comprehensive SQL and PL/pgSQL example sets up a `public.profiles` table and an `auth.users` trigger. The `handle_new_user` function, defined with `SECURITY DEFINER`, ensures that when a new user is inserted into `auth.users`, a corresponding profile entry is automatically created in `public.profiles` with the necessary permissions, preventing common permission errors.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/troubleshooting/dashboard-errors-when-managing-users-N1ls4A.mdx#_snippet_1
+
+LANGUAGE: SQL
+CODE:
+```
+create table profiles (
+  id uuid references auth.users on delete cascade not null primary key,
+  updated_at timestamp with time zone,
+  username text unique,
+  full_name text,
+  avatar_url text,
+  website text,
+
+  constraint username_length check (char_length(username) >= 3)
+);
+
+create function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, full_name, avatar_url)
+  values (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+```
+
+----------------------------------------
+
+TITLE: Initializing Supabase Client in Ionic React
+DESCRIPTION: This JavaScript file initializes the Supabase client using the environment variables. The `supabase` instance is then exported, making it globally accessible throughout the application for all Supabase API calls.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/getting-started/tutorials/with-ionic-react.mdx#_snippet_2
+
+LANGUAGE: javascript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+```
+
+----------------------------------------
+
+TITLE: Signing Up Users with Supabase Auth (Current)
+DESCRIPTION: This snippet illustrates the updated `supabase.auth.signUp` method for user registration. It now accepts a single object as an argument, containing the `email` and `password` properties. The function returns an object with `user` data and an `error` object, aligning with the new error handling pattern.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/www/_blog/2020-10-30-improved-dx.mdx#_snippet_3
+
+LANGUAGE: js
+CODE:
+```
+const { user, error } = await supabase.auth.signUp({
+  email: 'someone@email.com',
+  password: 'password',
+})
+```
+
+----------------------------------------
+
+TITLE: Correct: Supabase SSR Cookie Handling Pattern (TypeScript)
+DESCRIPTION: This snippet illustrates the REQUIRED and correct pattern for handling cookies when initializing Supabase clients for SSR. It mandates the use of `getAll()` and `setAll(cookiesToSet)` methods, ensuring proper session management and preventing application breakage. AI models MUST always generate this exact pattern.
+SOURCE: https://github.com/supabase/supabase/blob/master/examples/prompts/nextjs-supabase-auth.md#_snippet_2
+
+LANGUAGE: typescript
+CODE:
+```
+{
+  cookies: {
+    getAll() {
+      return cookieStore.getAll()
+    },
+    setAll(cookiesToSet) {
+      const response = NextResponse.next({
+        request,
+      })
+      
+      cookiesToSet.forEach(({ name, value, options }) => {
+        response.cookies.set(name, value, options)
+      })
+      
+      return response
+    }
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Writing RLS Unit Tests with pgTAP (PostgreSQL)
+DESCRIPTION: This comprehensive SQL snippet demonstrates writing pgTAP unit tests for RLS policies. It initializes the test environment, sets up mock user data and todos, then impersonates different users to verify that RLS correctly restricts data access and modification, including positive and negative test cases.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/local-development/testing/overview.mdx#_snippet_2
+
+LANGUAGE: SQL
+CODE:
+```
+begin;
+-- install tests utilities
+-- install pgtap extension for testing
+create extension if not exists pgtap with schema extensions;
+-- Start declare we'll have 4 test cases in our test suite
+select plan(4);
+
+-- Setup our testing data
+-- Set up auth.users entries
+insert into auth.users (id, email) values
+	('123e4567-e89b-12d3-a456-426614174000', 'user1@test.com'),
+	('987fcdeb-51a2-43d7-9012-345678901234', 'user2@test.com');
+
+-- Create test todos
+insert into public.todos (task, user_id) values
+	('User 1 Task 1', '123e4567-e89b-12d3-a456-426614174000'),
+	('User 1 Task 2', '123e4567-e89b-12d3-a456-426614174000'),
+	('User 2 Task 1', '987fcdeb-51a2-43d7-9012-345678901234');
+
+-- as User 1
+set local role authenticated;
+set local request.jwt.claim.sub = '123e4567-e89b-12d3-a456-426614174000';
+
+-- Test 1: User 1 should only see their own todos
+select results_eq(
+	'select count(*) from todos',
+	ARRAY[2::bigint],
+	'User 1 should only see their 2 todos'
+);
+
+-- Test 2: User 1 can create their own todo
+select lives_ok(
+	$$insert into todos (task, user_id) values ('New Task', '123e4567-e89b-12d3-a456-426614174000'::uuid)$$,
+	'User 1 can create their own todo'
+);
+
+-- as User 2
+set local request.jwt.claim.sub = '987fcdeb-51a2-43d7-9012-345678901234';
+
+-- Test 3: User 2 should only see their own todos
+select results_eq(
+	'select count(*) from todos',
+	ARRAY[1::bigint],
+	'User 2 should only see their 1 todo'
+);
+
+-- Test 4: User 2 cannot modify User 1's todo
+SELECT results_ne(
+	$$ update todos set task = 'Hacked!' where user_id = '123e4567-e89b-12d3-a456-426614174000'::uuid returning 1 $$,
+	$$ values(1) $$,
+	'User 2 cannot modify User 1 todos'
+);
+
+select * from finish();
+rollback;
+```
+
+----------------------------------------
+
+TITLE: Implementing GET/POST Routes with Express.js in Supabase Edge Functions
+DESCRIPTION: This TypeScript code demonstrates how to set up basic GET and POST routes using the Express.js framework within a Supabase Edge Function. It handles a GET request to `/hello-world` returning 'Hello World!' and a POST request to the same path, extracting a `name` from the request body to return a personalized greeting. It uses `express.json()` for parsing JSON payloads.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/functions/routing.mdx#_snippet_1
+
+LANGUAGE: typescript
+CODE:
+```
+import express from 'npm:express@4.18.2'
+
+const app = express()
+app.use(express.json())
+// If you want a payload larger than 100kb, then you can tweak it here:
+// app.use( express.json({ limit : "300kb" }));
+
+const port = 3000
+
+app.get('/hello-world', (req, res) => {
+  res.send('Hello World!')
+})
+
+app.post('/hello-world', (req, res) => {
+  const { name } = req.body
+  res.send(`Hello ${name}!`)
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
+```
+
+----------------------------------------
+
+TITLE: Supabase Database Schema and Policies for User Profiles and Storage
+DESCRIPTION: This SQL script defines the `profiles` table, linking it to `auth.users` and enforcing a unique username constraint. It establishes Row Level Security (RLS) policies allowing public viewing, self-insertion, and self-updates for user profiles. Additionally, it configures Supabase Realtime for the `profiles` table and sets up an 'avatars' storage bucket with policies for public access and general upload permissions.
+SOURCE: https://github.com/supabase/supabase/blob/master/examples/user-management/vue3-user-management/README.md#_snippet_1
+
+LANGUAGE: sql
+CODE:
+```
+-- Create a table for public "profiles"
+create table profiles (
+  id uuid references auth.users not null,
+  updated_at timestamp with time zone,
+  username text unique,
+  avatar_url text,
+  website text,
+
+  primary key (id),
+  unique(username),
+  constraint username_length check (char_length(username) >= 3)
+);
+
+alter table profiles enable row level security;
+
+create policy "Public profiles are viewable by everyone."
+  on profiles for select
+  using ( true );
+
+create policy "Users can insert their own profile."
+  on profiles for insert
+  with check ( (select auth.uid()) = id );
+
+create policy "Users can update own profile."
+  on profiles for update
+  using ( (select auth.uid()) = id );
+
+-- Set up Realtime!
+begin;
+  drop publication if exists supabase_realtime;
+  create publication supabase_realtime;
+commit;
+alter publication supabase_realtime add table profiles;
+
+-- Set up Storage!
+insert into storage.buckets (id, name)
+values ('avatars', 'avatars');
+
+create policy "Avatar images are publicly accessible."
+  on storage.objects for select
+  using ( bucket_id = 'avatars' );
+
+create policy "Anyone can upload an avatar."
+  on storage.objects for insert
+  with check ( bucket_id = 'avatars' );
+```
+
+----------------------------------------
+
+TITLE: Creating Tables for Many-to-Many Relationship (SQL)
+DESCRIPTION: This SQL snippet defines three tables: `movies`, `actors`, and `performances`. The `performances` table acts as a join table, linking `movie_id` and `actor_id` with foreign keys, enabling a many-to-many relationship between movies and actors.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/database/tables.mdx#_snippet_14
+
+LANGUAGE: SQL
+CODE:
+```
+create table movies (
+  id bigint generated by default as identity primary key,
+  name text,
+  description text
+);
+
+create table actors (
+  id bigint generated by default as identity primary key,
+  name text
+);
+
+create table performances (
+  id bigint generated by default as identity primary key,
+  movie_id bigint not null references movies,
+  actor_id bigint not null references actors
+);
+```
+
+----------------------------------------
+
+TITLE: Create Generic PL/pgSQL Trigger Function to Queue Embedding Jobs
+DESCRIPTION: This PL/pgSQL function, `util.queue_embeddings`, is designed to be used as a trigger. It automatically sends a message to the 'embedding_jobs' queue whenever a row is inserted or updated in a table. The message includes the row's ID, schema, table name, a content function name, and the target embedding column, enabling flexible content extraction and storage.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/ai/automatic-embeddings.mdx#_snippet_5
+
+LANGUAGE: PL/pgSQL
+CODE:
+```
+create or replace function util.queue_embeddings()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  content_function text = TG_ARGV[0];
+  embedding_column text = TG_ARGV[1];
+begin
+  perform pgmq.send(
+    queue_name => 'embedding_jobs',
+    msg => jsonb_build_object(
+      'id', NEW.id,
+      'schema', TG_TABLE_SCHEMA,
+      'table', TG_TABLE_NAME,
+      'contentFunction', content_function,
+      'embeddingColumn', embedding_column
+    )
+  );
+  return NEW;
+end;
+$$;
+```
+
+----------------------------------------
+
+TITLE: Create function to generate embedding input in PostgreSQL
+DESCRIPTION: Defines a PostgreSQL function, `embedding_input`, that concatenates the title and content of a document to generate input for embedding generation. This function is immutable and returns text, suitable for use with embedding models.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/ai/automatic-embeddings.mdx#_snippet_14
+
+LANGUAGE: SQL
+CODE:
+```
+-- Customize the input for embedding generation
+-- e.g. Concatenate title and content with a markdown header
+create or replace function embedding_input(doc documents)
+returns text
+language plpgsql
+immutable
+as $$
+begin
+  return '# ' || doc.title || E'\n\n' || doc.content;
+end;
+$$;
+```
+
+----------------------------------------
+
+TITLE: Creating OpenAI GPT Completion Edge Function - TypeScript
+DESCRIPTION: Implements a Supabase Edge Function that receives a user query via a POST request, forwards it to OpenAI's chat completions API, and returns the generated response. It requires an 'OPENAI_API_KEY' environment variable for authentication and uses the 'gpt-3.5-turbo' model, configured for non-streaming output.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/ai/examples/openai.mdx#_snippet_2
+
+LANGUAGE: typescript
+CODE:
+```
+import OpenAI from 'https://deno.land/x/openai@v4.24.0/mod.ts'
+
+Deno.serve(async (req) => {
+  const { query } = await req.json()
+  const apiKey = Deno.env.get('OPENAI_API_KEY')
+  const openai = new OpenAI({
+    apiKey: apiKey,
+  })
+
+  // Documentation here: https://github.com/openai/openai-node
+  const chatCompletion = await openai.chat.completions.create({
+    messages: [{ role: 'user', content: query }],
+    // Choose model from here: https://platform.openai.com/docs/models
+    model: 'gpt-3.5-turbo',
+    stream: false,
+  })
+
+  const reply = chatCompletion.choices[0].message.content
+
+  return new Response(reply, {
+    headers: { 'Content-Type': 'text/plain' },
+  })
+})
+```
+
+----------------------------------------
+
+TITLE: Configuring Supabase Environment Variables
+DESCRIPTION: This snippet shows the essential environment variables required to connect your React Router application to a Supabase project. VITE_SUPABASE_URL specifies the URL of your Supabase instance, and VITE_SUPABASE_ANON_KEY is your project's public API key, used for client-side interactions.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/ui-library/content/docs/react-router/social-auth.mdx#_snippet_0
+
+LANGUAGE: env
+CODE:
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
+
+----------------------------------------
+
+TITLE: Configuring Supabase Environment Variables for Next.js
+DESCRIPTION: This snippet illustrates the essential environment variables required to establish a connection between a Next.js application and Supabase. 'NEXT_PUBLIC_SUPABASE_URL' defines the URL of your Supabase project, while 'NEXT_PUBLIC_SUPABASE_ANON_KEY' stores the public anonymous key. These variables are fundamental for the Supabase client to authenticate and interact with your backend services.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/ui-library/content/docs/nextjs/client.mdx#_snippet_0
+
+LANGUAGE: env
+CODE:
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+----------------------------------------
+
+TITLE: Implementing Profile View with PhotosPicker and Supabase Integration (Swift)
+DESCRIPTION: This SwiftUI `View` manages user profile information, including username, full name, website, and an avatar image. It integrates `PhotosPicker` for selecting images, interacts with Supabase for authentication and database operations (fetching and updating profiles), and uses Supabase Storage for uploading and downloading avatar images. It handles loading states and error logging.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/getting-started/tutorials/with-swift.mdx#_snippet_6
+
+LANGUAGE: Swift
+CODE:
+```
+import PhotosUI
+import Storage
+import Supabase
+import SwiftUI
+
+struct ProfileView: View {
+  @State var username = ""
+  @State var fullName = ""
+  @State var website = ""
+
+  @State var isLoading = false
+
+ @State var imageSelection: PhotosPickerItem?
+ @State var avatarImage: AvatarImage?
+
+  var body: some View {
+    NavigationStack {
+      Form {
+        Section {
+          HStack {
+            Group {
+              if let avatarImage {
+                avatarImage.image.resizable()
+              } else {
+                Color.clear
+              }
+            }
+            .scaledToFit()
+            .frame(width: 80, height: 80)
+
+            Spacer()
+
+            PhotosPicker(selection: $imageSelection, matching: .images) {
+              Image(systemName: "pencil.circle.fill")
+                .symbolRenderingMode(.multicolor)
+                .font(.system(size: 30))
+                .foregroundColor(.accentColor)
+            }
+          }
+        }
+
+        Section {
+          TextField("Username", text: $username)
+            .textContentType(.username)
+            .textInputAutocapitalization(.never)
+          TextField("Full name", text: $fullName)
+            .textContentType(.name)
+          TextField("Website", text: $website)
+            .textContentType(.URL)
+            .textInputAutocapitalization(.never)
+        }
+
+        Section {
+          Button("Update profile") {
+            updateProfileButtonTapped()
+          }
+          .bold()
+
+          if isLoading {
+            ProgressView()
+          }
+        }
+      }
+      .navigationTitle("Profile")
+      .toolbar(content: {
+        ToolbarItem {
+          Button("Sign out", role: .destructive) {
+            Task {
+              try? await supabase.auth.signOut()
+            }
+          }
+        }
+      })
+      .onChange(of: imageSelection) { _, newValue in
+        guard let newValue else { return }
+        loadTransferable(from: newValue)
+      }
+    }
+    .task {
+      await getInitialProfile()
+    }
+  }
+
+  func getInitialProfile() async {
+    do {
+      let currentUser = try await supabase.auth.session.user
+
+      let profile: Profile =
+      try await supabase
+        .from("profiles")
+        .select()
+        .eq("id", value: currentUser.id)
+        .single()
+        .execute()
+        .value
+
+      username = profile.username ?? ""
+      fullName = profile.fullName ?? ""
+      website = profile.website ?? ""
+
+      if let avatarURL = profile.avatarURL, !avatarURL.isEmpty {
+        try await downloadImage(path: avatarURL)
+      }
+
+    } catch {
+      debugPrint(error)
+    }
+  }
+
+  func updateProfileButtonTapped() {
+    Task {
+      isLoading = true
+      defer { isLoading = false }
+      do {
+        let imageURL = try await uploadImage()
+
+        let currentUser = try await supabase.auth.session.user
+
+        let updatedProfile = Profile(
+          username: username,
+          fullName: fullName,
+          website: website,
+          avatarURL: imageURL
+        )
+
+        try await supabase
+          .from("profiles")
+          .update(updatedProfile)
+          .eq("id", value: currentUser.id)
+          .execute()
+      } catch {
+        debugPrint(error)
+      }
+    }
+  }
+
+  private func loadTransferable(from imageSelection: PhotosPickerItem) {
+    Task {
+      do {
+        avatarImage = try await imageSelection.loadTransferable(type: AvatarImage.self)
+      } catch {
+        debugPrint(error)
+      }
+    }
+  }
+
+  private func downloadImage(path: String) async throws {
+    let data = try await supabase.storage.from("avatars").download(path: path)
+    avatarImage = AvatarImage(data: data)
+  }
+
+  private func uploadImage() async throws -> String? {
+    guard let data = avatarImage?.data else { return nil }
+
+    let filePath = "\(UUID().uuidString).jpeg"
+
+    try await supabase.storage
+      .from("avatars")
+      .upload(
+        filePath,
+        data: data,
+        options: FileOptions(contentType: "image/jpeg")
+      )
+
+    return filePath
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Installing Supabase JavaScript Client (Bash)
+DESCRIPTION: This command installs the `@supabase/supabase-js` package using npm, which is the official JavaScript client library for interacting with Supabase services, including Realtime.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/realtime/postgres-changes.mdx#_snippet_2
+
+LANGUAGE: bash
+CODE:
+```
+npm install @supabase/supabase-js
+```
+
+----------------------------------------
+
+TITLE: Implementing Row Level Security (RLS) Policies in Supabase SQL
+DESCRIPTION: This comprehensive snippet establishes Row Level Security (RLS) across all application tables. It begins by creating a private schema for security-definer helper functions (`get_user_org_role` and `can_add_post`) to manage user roles and enforce post limits. Subsequently, RLS is enabled for each public table, followed by detailed policy definitions for `profiles`, `organizations`, `org_members`, `posts`, and `comments`, ensuring granular access control based on user authentication, roles, and content status.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/local-development/testing/pgtap-extended.mdx#_snippet_7
+
+LANGUAGE: SQL
+CODE:
+```
+-- Create a private schema to store all security definer functions utils
+-- As such functions should never be in a API exposed schema
+create schema if not exists private;
+-- Helper function for role checks
+create or replace function private.get_user_org_role(org_id bigint, user_id uuid)
+returns text
+set search_path = ''
+as $$
+  select role from public.org_members
+  where org_id = $1 and user_id = $2;
+-- Note the use of security definer to avoid RLS checking recursion issue
+-- see: https://supabase.com/docs/guides/database/postgres/row-level-security#use-security-definer-functions
+$$ language sql security definer;
+-- Helper utils to check if an org is below the max post limit
+create or replace function private.can_add_post(org_id bigint)
+returns boolean
+set search_path = ''
+as $$
+  select (select count(*)
+          from public.posts p
+          where p.org_id = $1) < o.max_posts
+  from public.organizations o
+  where o.id = $1
+$$ language sql security definer;
+
+
+-- Enable RLS for all tables
+alter table public.profiles enable row level security;
+alter table public.organizations enable row level security;
+alter table public.org_members enable row level security;
+alter table public.posts enable row level security;
+alter table public.comments enable row level security;
+
+-- Profiles policies
+create policy "Public profiles are viewable by everyone"
+  on public.profiles for select using (true);
+
+create policy "Users can insert their own profile"
+  on public.profiles for insert with check ((select auth.uid()) = id);
+
+create policy "Users can update their own profile"
+  on public.profiles for update using ((select auth.uid()) = id)
+  with check ((select auth.uid()) = id);
+
+-- Organizations policies
+create policy "Public org info visible to all"
+  on public.organizations for select using (true);
+
+create policy "Org management restricted to owners"
+  on public.organizations for all using (
+    private.get_user_org_role(id, (select auth.uid())) = 'owner'
+  );
+
+-- Org Members policies
+create policy "Members visible to org members"
+  on public.org_members for select using (
+    private.get_user_org_role(org_id, (select auth.uid())) is not null
+  );
+
+create policy "Member management restricted to admins and owners"
+  on public.org_members for all using (
+    private.get_user_org_role(org_id, (select auth.uid())) in ('owner', 'admin')
+  );
+
+-- Posts policies
+create policy "Complex post visibility"
+  on public.posts for select using (
+    -- Published non-premium posts are visible to all
+    (status = 'published' and not is_premium)
+    or
+    -- Premium posts visible to org members only
+    (status = 'published' and is_premium and
+    private.get_user_org_role(org_id, (select auth.uid())) is not null)
+    or
+    -- All posts visible to editors and above
+    private.get_user_org_role(org_id, (select auth.uid())) in ('owner', 'admin', 'editor')
+  );
+
+create policy "Post creation rules"
+  on public.posts for insert with check (
+    -- Must be org member with appropriate role
+    private.get_user_org_role(org_id, (select auth.uid())) in ('owner', 'admin', 'editor')
+    and
+    -- Check org post limits for free plans
+    (
+      (select o.plan_type != 'free'
+      from organizations o
+      where o.id = org_id)
+      or
+      (select private.can_add_post(org_id))
+    )
+  );
+
+create policy "Post update rules"
+  on public.posts for update using (
+    exists (
+      select 1
+      where
+        -- Editors can update non-published posts
+        (private.get_user_org_role(org_id, (select auth.uid())) = 'editor' and status != 'published')
+        or
+        -- Admins and owners can update any post
+        private.get_user_org_role(org_id, (select auth.uid())) in ('owner', 'admin')
+    )
+  );
+
+-- Comments policies
+create policy "Comments on published posts are viewable by everyone"
+  on public.comments for select using (
+    exists (
+      select 1 from public.posts
+      where id = post_id
+      and status = 'published'
+    )
+    and not is_deleted
+  );
+
+create policy "Authenticated users can create comments"
+  on public.comments for insert with check ((select auth.uid()) = author_id);
+
+create policy "Users can update their own comments"
+  on public.comments for update using (author_id = (select auth.uid()));
+```
+
+----------------------------------------
+
+TITLE: Initializing Supabase Client (JavaScript)
+DESCRIPTION: This JavaScript snippet demonstrates how to initialize the Supabase client using `createClient`. It requires your project URL and anonymous key to establish a connection for listening to Postgres changes.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/realtime/postgres-changes.mdx#_snippet_3
+
+LANGUAGE: js
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  'https://<project>.supabase.co',
+  '<your-anon-key>'
+)
+```
+
+----------------------------------------
+
+TITLE: Creating the Audit Record Version Table in PostgreSQL
+DESCRIPTION: This SQL defines the `audit.record_version` table, which stores historical changes to audited records. It uses `JSONB` columns to store the full record and old record data, along with metadata like operation type (`op`), timestamp (`ts`), and table identifiers (`table_oid`, `table_schema`, `table_name`), enabling a schema-less approach to auditing.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/www/_blog/2022-03-08-postgres-audit.mdx#_snippet_4
+
+LANGUAGE: SQL
+CODE:
+```
+create table audit.record_version (
+  id bigserial primary key,
+  -- auditing metadata
+  record_id uuid, -- identifies a new record by it's table + primary key
+  old_record_id uuid, -- ^
+  op varchar(8) not null, -- INSERT/UPDATE/DELETE/TRUNCATE
+  ts timestamptz not null default now(),
+  -- table identifiers
+  table_oid oid not null, -- pg internal id for a table
+  table_schema name not null, -- audited table's schema name e.g. 'public'
+  table_name name not null, -- audited table's table name e.g. 'account'
+  -- record data
+  record jsonb, -- contents of the new record
+  old_record jsonb -- previous record contents (for UPDATE/DELETE)
+);
+```
+
+----------------------------------------
+
+TITLE: Retrieving Logged-in User Data in Supabase.js v2 (TypeScript)
+DESCRIPTION: This snippet demonstrates how to fetch the currently logged-in user's data in Supabase.js v2. The synchronous `user()` method is replaced by the asynchronous `getUser()`, which returns the `user` object nested within a `data` property, providing a consistent API response.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/docs/ref/javascript/v1/upgrade-guide.mdx#_snippet_9
+
+LANGUAGE: ts
+CODE:
+```
+const user = supabase.auth.user()
+```
+
+LANGUAGE: ts
+CODE:
+```
+const {
+  data: { user },
+} = await supabase.auth.getUser()
+```
+
+----------------------------------------
+
+TITLE: Creating a Complex Query Stored Function in PostgreSQL
+DESCRIPTION: This SQL snippet defines a `plpgsql` stored function named `get_my_complex_query`. It encapsulates a complex multi-table join query, accepting an integer `parameter` and returning a table with specified columns. This function centralizes complex logic, making it reusable and more efficient.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/troubleshooting/certain-operations-are-too-complex-to-perform-directly-using-the-client-libraries-8JaphH.mdx#_snippet_0
+
+LANGUAGE: SQL
+CODE:
+```
+DROP FUNCTION IF EXISTS get_my_complex_query;
+CREATE FUNCTION get_my_complex_query(parameter INT)
+RETURNS TABLE (column1 INTEGER, column2 VARCHAR, column3 DATE) AS
+$$
+BEGIN
+    RETURN QUERY
+    SELECT t1.column1, t1.column2, t2.column3
+    FROM "TableName1" AS t1
+    INNER JOIN "TableName2" AS t2 ON t1.column = t2.column
+    INNER JOIN "TableName3" AS t3 ON t2.another_column = t3.another_column
+    LEFT JOIN "TableName4" AS t4 ON t3.some_column = t4.some_column
+    WHERE t2.column = parameter
+    AND t3.column_name = 'some_value';
+END;
+$$
+LANGUAGE plpgsql VOLATILE;
+```
+
+----------------------------------------
+
+TITLE: Defining Row Level Security Policies for Supabase Realtime Authorization - SQL
+DESCRIPTION: This SQL snippet establishes RLS policies for `public.profiles`, `public.rooms`, `public.rooms_users`, and `realtime.messages`. These policies authorize authenticated users to perform read/insert operations on public tables and control access to Realtime Broadcast and Presence based on user membership in `public.rooms_users`, ensuring secure channel access.
+SOURCE: https://github.com/supabase/supabase/blob/master/examples/realtime/nextjs-authorization-demo/README.md#_snippet_1
+
+LANGUAGE: SQL
+CODE:
+```
+CREATE POLICY "authenticated can view all profiles"
+ON "public"."profiles"
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+CREATE POLICY "supabase_auth_admin can insert profile"
+ON "public"."profiles"
+AS PERMISSIVE FOR INSERT
+TO supabase_auth_admin
+WITH CHECK (true);
+
+CREATE POLICY "authenticated can read rooms"
+ON "public"."rooms"
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (TRUE);
+
+CREATE POLICY "authenticated can add rooms"
+ON "public"."rooms"
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (TRUE);
+
+CREATE POLICY "authenticated can read rooms_users"
+ON "public"."rooms_users"
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (TRUE);
+
+CREATE POLICY "authenticated can add rooms_users"
+ON "public"."rooms_users"
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (TRUE);
+
+CREATE POLICY "authenticated can read broadcast and presence state"
+ON "realtime"."messages"
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM public.rooms_users
+    WHERE user_id = (select auth.uid())
+    AND room_topic = realtime.topic()
+    AND realtime.messages.extension in ('broadcast', 'presence')
+  )
+);
+
+CREATE POLICY "authenticated can send broadcast and track presence"
+ON "realtime"."messages"
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM public.rooms_users
+    WHERE user_id = (select auth.uid())
+    AND room_topic = realtime.topic()
+    AND realtime.messages.extension in ('broadcast', 'presence')
+  )
+);
+```
+
+----------------------------------------
+
+TITLE: Implementing Basic Login/Signup Form with Next.js and Supabase Auth
+DESCRIPTION: This snippet demonstrates a simple login form in Next.js using standard HTML form actions to interact with Supabase authentication routes. It includes fields for email and password, along with buttons for signing in, signing up, and signing out, leveraging Next.js's form action handling for authentication flows.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/auth-helpers/nextjs.mdx#_snippet_14
+
+LANGUAGE: jsx
+CODE:
+```
+export default function Login() {
+  return (
+    <form action="/auth/login" method="post">
+      <label htmlFor="email">Email</label>
+      <input name="email" />
+      <label htmlFor="password">Password</label>
+      <input type="password" name="password" />
+      <button>Sign In</button>
+      <button formAction="/auth/sign-up">Sign Up</button>
+      <button formAction="/auth/logout">Sign Out</button>
+    </form>
+  )
+}
+```
+
+LANGUAGE: tsx
+CODE:
+```
+export default function Login() {
+  return (
+    <form action="/auth/login" method="post">
+      <label htmlFor="email">Email</label>
+      <input name="email" />
+      <label htmlFor="password">Password</label>
+      <input type="password" name="password" />
+      <button>Sign In</button>
+      <button formAction="/auth/sign-up">Sign Up</button>
+    </form>
+  )
+}
+```
+
+----------------------------------------
+
+TITLE: Creating RLS Policy for Authenticated User Read Access
+DESCRIPTION: This SQL snippet illustrates how to create a Row Level Security (RLS) policy that grants `authenticated` users `SELECT` access to the `profiles` table. When a user logs in via Supabase Auth, their role automatically updates to `authenticated`, enabling this policy and allowing them to read data from the table.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/api/api-keys.mdx#_snippet_3
+
+LANGUAGE: sql
+CODE:
+```
+create policy "Allow access to authenticated users" on profiles to authenticated for
+select
+  using (true);
+```
+
+----------------------------------------
+
+TITLE: Configuring RLS Policy with Custom Session Variable - SQL
+DESCRIPTION: This SQL snippet enables Row Level Security (RLS) on the `document_sections` table and defines a policy allowing authenticated users to select only their own document sections. It uses a custom session variable, `app.current_user_id`, to identify the current user, casting it to `bigint` for comparison with `owner_id`.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/ai/rag-with-permissions.mdx#_snippet_9
+
+LANGUAGE: SQL
+CODE:
+```
+-- enable row level security
+alter table document_sections enable row level security;
+
+-- setup RLS for select operations
+create policy "Users can query their own document sections"
+on document_sections for select to authenticated using (
+  document_id in (
+    select id
+    from external.documents
+    where owner_id = current_setting('app.current_user_id')::bigint
+  )
+);
+```
+
+----------------------------------------
+
+TITLE: Configuring Supabase Environment Variables for React
+DESCRIPTION: This snippet defines the essential environment variables required for a React application to connect to Supabase. `VITE_SUPABASE_URL` specifies the Supabase project URL, and `VITE_SUPABASE_ANON_KEY` holds the public API key. These variables are crucial for initializing the Supabase client and enabling communication with the backend services.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/ui-library/content/docs/react/password-based-auth.mdx#_snippet_0
+
+LANGUAGE: env
+CODE:
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
+
+----------------------------------------
+
+TITLE: Setting Up Supabase Environment Variables (.env.local)
+DESCRIPTION: This snippet shows how to configure environment variables in a `.env.local` file. It requires setting `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY` with your specific Supabase project details. These variables are crucial for the application to connect to your Supabase project.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/server-side/sveltekit.mdx#_snippet_1
+
+LANGUAGE: txt
+CODE:
+```
+PUBLIC_SUPABASE_URL=<your_supabase_project_url>
+PUBLIC_SUPABASE_ANON_KEY=<your_supabase_anon_key>
+```
+
+----------------------------------------
+
+TITLE: Generating and Storing Text Embeddings via Database Webhook - TypeScript
+DESCRIPTION: This TypeScript Edge Function acts as a database webhook, triggered when a row is inserted or updated in the `embeddings` table. It uses the `Supabase.ai.Session` with the `gte-small` model to generate a vector embedding for the `content` field and then updates the corresponding row in the `embeddings` table with the generated embedding.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/functions/examples/semantic-search.mdx#_snippet_1
+
+LANGUAGE: TypeScript
+CODE:
+```
+const model = new Supabase.ai.Session('gte-small')
+
+Deno.serve(async (req) => {
+  const payload: WebhookPayload = await req.json()
+  const { content, id } = payload.record
+
+  // Generate embedding.
+  const embedding = await model.run(content, {
+    mean_pool: true,
+    normalize: true,
+  })
+
+  // Store in database.
+  const { error } = await supabase
+    .from('embeddings')
+    .update({ embedding: JSON.stringify(embedding) })
+    .eq('id', id)
+  if (error) console.warn(error.message)
+
+  return new Response('ok')
+})
+```
+
+----------------------------------------
+
+TITLE: Initializing Supabase Client in SvelteKit (JavaScript)
+DESCRIPTION: This JavaScript snippet creates `src/lib/supabaseClient.js` to initialize the Supabase client. It imports `createClient` from `@supabase/supabase-js` and exports a `supabase` instance configured with the project's URL and public (anon) key, enabling database interactions.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/getting-started/quickstarts/sveltekit.mdx#_snippet_2
+
+LANGUAGE: javascript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+
+export const supabase = createClient('https://<project>.supabase.co', '<your-anon-key>')
+```
+
+----------------------------------------
+
+TITLE: Initiating Supabase User Signup in Dart
+DESCRIPTION: This Dart snippet shows how to sign up a new user with Supabase by calling `supabase.auth.signUp()`. It takes the user's email and password as parameters to initiate the authentication flow.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/passwords.mdx#_snippet_12
+
+LANGUAGE: Dart
+CODE:
+```
+Future<void> signUpNewUser() async {
+  final AuthResponse res = await supabase.auth.signUp(
+    email: 'valid.email@supabase.io',
+    password: 'example-password'
+  );
+}
+```
+
+----------------------------------------
+
+TITLE: Signing In with Email and Password - JavaScript
+DESCRIPTION: This snippet demonstrates how to sign in a user using their email and password with the Supabase JavaScript client. It calls `signInWithPassword()` and handles the response, which includes user data or an error.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/passwords.mdx#_snippet_16
+
+LANGUAGE: JavaScript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient('https://your-project.supabase.co', 'your-anon-key')
+
+// ---cut---
+async function signInWithEmail() {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: 'valid.email@supabase.io',
+    password: 'example-password',
+  })
+}
+```
+
+----------------------------------------
+
+TITLE: Implementing Supabase Service for Angular (TypeScript)
+DESCRIPTION: This TypeScript service (SupabaseService) integrates Supabase functionality into an Ionic Angular application. It initializes the Supabase client, provides methods for user authentication (sign-in with OTP, sign-out, auth state changes), profile management (fetching and updating), and avatar storage operations (uploading and downloading). It also includes utility methods for displaying Ionic loading indicators and toast messages.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/getting-started/tutorials/with-ionic-angular.mdx#_snippet_2
+
+LANGUAGE: typescript
+CODE:
+```
+import { Injectable } from '@angular/core'
+import { LoadingController, ToastController } from '@ionic/angular'
+import { AuthChangeEvent, createClient, Session, SupabaseClient } from '@supabase/supabase-js'
+import { environment } from '../environments/environment'
+
+export interface Profile {
+  username: string
+  website: string
+  avatar_url: string
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SupabaseService {
+  private supabase: SupabaseClient
+
+  constructor(
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController
+  ) {
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
+  }
+
+  get user() {
+    return this.supabase.auth.getUser().then(({ data }) => data?.user)
+  }
+
+  get session() {
+    return this.supabase.auth.getSession().then(({ data }) => data?.session)
+  }
+
+  get profile() {
+    return this.user
+      .then((user) => user?.id)
+      .then((id) =>
+        this.supabase.from('profiles').select(`username, website, avatar_url`).eq('id', id).single()
+      )
+  }
+
+  authChanges(callback: (event: AuthChangeEvent, session: Session | null) => void) {
+    return this.supabase.auth.onAuthStateChange(callback)
+  }
+
+  signIn(email: string) {
+    return this.supabase.auth.signInWithOtp({ email })
+  }
+
+  signOut() {
+    return this.supabase.auth.signOut()
+  }
+
+  async updateProfile(profile: Profile) {
+    const user = await this.user
+    const update = {
+      ...profile,
+      id: user?.id,
+      updated_at: new Date(),
+    }
+
+    return this.supabase.from('profiles').upsert(update)
+  }
+
+  downLoadImage(path: string) {
+    return this.supabase.storage.from('avatars').download(path)
+  }
+
+  uploadAvatar(filePath: string, file: File) {
+    return this.supabase.storage.from('avatars').upload(filePath, file)
+  }
+
+  async createNotice(message: string) {
+    const toast = await this.toastCtrl.create({ message, duration: 5000 })
+    await toast.present()
+  }
+
+  createLoader() {
+    return this.loadingCtrl.create()
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Setting Up Supabase Environment Variables
+DESCRIPTION: These environment variables store your Supabase project URL and anonymous key, essential for connecting your Next.js application to your Supabase backend. They should be placed in a `.env.local` file for local development.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/auth-helpers/nextjs-pages.mdx#_snippet_2
+
+LANGUAGE: bash
+CODE:
+```
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+----------------------------------------
+
+TITLE: Set Supabase Environment Variables (Pages Router) - Text
+DESCRIPTION: Creates a `.env.local` file to store the Supabase project URL and anonymous key, making them accessible to the Next.js application. Replace placeholders with your actual project details.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/server-side/nextjs.mdx#_snippet_11
+
+LANGUAGE: txt
+CODE:
+```
+NEXT_PUBLIC_SUPABASE_URL=<your_supabase_project_url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your_supabase_anon_key>
+```
