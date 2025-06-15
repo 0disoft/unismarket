@@ -36,5 +36,9 @@
 			"esbuild"
 		]
 	},
-	"packageManager": "pnpm@10.12.1"
+	"packageManager": "pnpm@10.12.1",
+	"dependencies": {
+		"@supabase/ssr": "^0.6.1",
+		"@supabase/supabase-js": "^2.50.0"
+	}
 }
